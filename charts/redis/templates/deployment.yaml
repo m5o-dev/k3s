@@ -1,3 +1,4 @@
+{{- $_ := required "auth.password é obrigatório! Use: --set auth.password=suasenha" .Values.auth.password -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

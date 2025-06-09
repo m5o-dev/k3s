@@ -6,9 +6,11 @@
 # =============================================================================
 # Estas são as configurações que 80% dos usuários vão alterar
 
-# Credenciais do Redis (obrigatórias)
+# Credenciais do Redis (OBRIGATÓRIAS)
 auth:
-  password: "" # Senha do Redis (DEVE ser definida - mín. 6 caracteres)
+  password: ""
+    # ⚠️ OBRIGATÓRIO: Senha do Redis (mínimo 6 caracteres)
+    # Use: --set auth.password=suasenha123
 
 # Configuração de armazenamento
 storage:
@@ -94,7 +96,6 @@ advanced:
       - "900 1" # Salva se pelo menos 1 chave mudou em 900 segundos
       - "300 10" # Salva se pelo menos 10 chaves mudaram em 300 segundos  
       - "60 10000" # Salva se pelo menos 10000 chaves mudaram em 60 segundos
-
       # Configurações de rede
       tcpKeepAlive: 300 # Keep alive TCP
       tcpBacklog: 511 # Backlog de conexões TCP

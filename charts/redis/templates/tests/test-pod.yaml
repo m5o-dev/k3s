@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-test"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: "test"
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+  - name: redis-test
+    image: redis:7.4.1-alpine
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      echo "🔴 Testando Redis..."
+      
+      # Teste 1: Conectividade básica com Service
+      SERVICE_URL="{{ .Release.Name }}-{{ .Chart.Name }}"
+      SERVICE_PORT="{{ .Values.networking.port | default 6379 }}"
+      echo "📡 Testando conectividade: $SERVICE_URL:$SERVICE_PORT"
+      
+      # Teste 2: Ping básico (com autenticação)
+      echo "🏓 Testando PING com autenticação..."
+      RESPONSE=$(redis-cli -h $SERVICE_URL -p $SERVICE_PORT -a $REDIS_PASSWORD ping)
+      if [ "$RESPONSE" != "PONG" ]; then
+        echo "❌ Falha no PING: $RESPONSE"
+        exit 1
+      fi
+      echo "✅ PING funcionando: $RESPONSE"
+      
+      # Teste 3: Operações básicas SET/GET
+      echo "📝 Testando operações SET/GET..."
+      redis-cli -h $SERVICE_URL -p $SERVICE_PORT -a $REDIS_PASSWORD set test-key "helm-test-value"
+      TEST_VALUE=$(redis-cli -h $SERVICE_URL -p $SERVICE_PORT -a $REDIS_PASSWORD get test-key)
+      if [ "$TEST_VALUE" != "helm-test-value" ]; then
+        echo "❌ Falha no SET/GET: $TEST_VALUE"
+        exit 1
+      fi
+      echo "✅ SET/GET funcionando: $TEST_VALUE"
+      
+      # Teste 4: Verificar informações do servidor
+      echo "📊 Verificando informações do servidor..."
+      SERVER_INFO=$(redis-cli -h $SERVICE_URL -p $SERVICE_PORT -a $REDIS_PASSWORD info server | grep redis_version)
+      echo "✅ Servidor: $SERVER_INFO"
+      
+      # Teste 5: Limpeza
+      redis-cli -h $SERVICE_URL -p $SERVICE_PORT -a $REDIS_PASSWORD del test-key
+      echo "🧹 Limpeza concluída"
+      
+      echo "🎉 Todos os testes passaram! Redis está funcionando corretamente."
+    env:
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretRef:
+          name: "{{ .Release.Name }}-{{ .Chart.Name }}-credentials"
+          key: REDIS_PASSWORD 

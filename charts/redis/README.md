@@ -192,6 +192,7 @@ helm install redis-persistent charts/redis \
 
 ## 🔍 **Verificação da Instalação**
 
+### **Verificação Rápida**
 ```bash
 # Verificar pods
 kubectl get pods -n redis
@@ -205,6 +206,25 @@ kubectl get pvc -n redis
 # Verificar logs
 kubectl logs -l app.kubernetes.io/name=redis -n redis
 ```
+
+### **🧪 Testes Automáticos (Helm Tests)**
+```bash
+# Executar testes de validação completa
+helm test redis -n redis
+
+# Verificar logs dos testes
+kubectl logs redis-redis-test -n redis
+
+# Executar testes com timeout personalizado
+helm test redis -n redis --timeout 300s
+```
+
+**Os testes automáticos verificam:**
+- ✅ **Conectividade** - Se o service responde na porta correta
+- ✅ **Autenticação** - Se as credenciais estão funcionando  
+- ✅ **Operações básicas** - SET/GET de chaves
+- ✅ **Informações do servidor** - Versão e status
+- ✅ **Limpeza** - Remove dados de teste
 
 ## 🔌 **Teste de Conexão**
 
@@ -307,6 +327,43 @@ kubectl run redis-auth-test --rm --tty -i --restart='Never' \
   --command -- redis-cli -h redis-redis -a $(kubectl get secret redis-redis-credentials -n redis -o jsonpath='{.data.REDIS_PASSWORD}' | base64 -d) ping
 ```
 
+### **Erro: auth.password é obrigatório**
+```bash
+# Se você vir este erro durante helm install:
+# Error: auth.password é obrigatório! Use: --set auth.password=suasenha
+
+# Solução: Definir senha obrigatória
+helm install redis charts/redis \
+  --set auth.password=minhasenhasegura123 \
+  --namespace redis
+
+# Para upgrade se já instalado sem senha
+helm upgrade redis charts/redis \
+  --set auth.password=minhasenhasegura123 \
+  --namespace redis
+```
+
+### **Problemas de persistência**
+```bash
+# Verificar se PVC foi criado
+kubectl get pvc redis-redis-data -n redis
+
+# Verificar eventos relacionados ao PVC
+kubectl describe pvc redis-redis-data -n redis
+
+# Se não há StorageClass padrão, especificar uma
+helm upgrade redis charts/redis \
+  --set auth.password=senha123 \
+  --set storage.storageClass=local-path \
+  --namespace redis
+
+# Para desabilitar persistência temporariamente
+helm upgrade redis charts/redis \
+  --set auth.password=senha123 \
+  --set persistence.enabled=false \
+  --namespace redis
+```
+
 ### **Performance baixa**
 ```bash
 # Verificar configurações de recursos
@@ -339,7 +396,16 @@ kubectl describe pvc redis-redis-data -n redis
 
 ## ✅ **Teste de Validação Completa**
 
-Use este comando para verificar se tudo está funcionando:
+### **🧪 Método Recomendado: Helm Tests (Automático)**
+```bash
+# Teste completo automatizado - recomendado!
+helm test redis -n redis
+
+# Se passou, tudo está funcionando! ✅
+```
+
+### **🔧 Método Manual: Verificação Passo a Passo**
+Use estes comandos para verificar se tudo está funcionando manualmente:
 
 ```bash
 # 1. Verificar pods rodando
