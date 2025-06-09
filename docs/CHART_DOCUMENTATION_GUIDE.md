@@ -189,7 +189,6 @@ kubectl describe ingressroute -n [namespace]
 ```
 
 **📚 Guia completo:** [TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)
-```
 
 ### **🎯 Regras Essenciais para READMEs:**
 
