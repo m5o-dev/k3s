@@ -34,50 +34,61 @@ O `test-chart.sh` é um script completo que automatiza todo o processo de valida
 ### **🏗️ Arquitetura de Testes**
 
 ```mermaid
-graph TD
-    A["🎯 Início<br/>chart-name"] --> B["✅ Verificar<br/>Dependências"]
-    B --> C["🔍 LINT<br/>Sintaxe & Estrutura"]
-    C --> D["🔧 TEMPLATES<br/>YAML Válido"]
-    D --> E["🚀 INSTALL<br/>Deploy Real"]
-    E --> F["⏱️ WAIT<br/>Pods Ready"]
-    F --> G["🧪 TESTS<br/>Funcionalidade"]
-    G --> H["🔄 UPGRADE<br/>Compatibilidade"]
-    H --> I["🧹 CLEANUP<br/>Recursos"]
-    I --> J["📊 RELATÓRIO<br/>Final"]
+---
+config:
+  look: classic
+  theme: neutral
+---
+flowchart TD
+    A("🎯 Início<br/>chart-name") --> B("✅ Verificar<br/>Dependências")
+    B --> C("🔍 LINT<br/>Sintaxe & Estrutura")
+    C --> D("🔧 TEMPLATES<br/>YAML Válido")
+    D --> E("🚀 INSTALL<br/>Deploy Real")
+    E --> F("⏱️ WAIT<br/>Pods Ready")
+    F --> G("🧪 TESTS<br/>Funcionalidade")
+    G --> H("🔄 UPGRADE<br/>Compatibilidade")
+    H --> I("🧹 CLEANUP<br/>Recursos")
+    I --> J("📊 RELATÓRIO<br/>Final")
     
-    C --> K["❌ ERRO<br/>Lint"]
-    D --> L["❌ ERRO<br/>Template"]
-    E --> M["❌ ERRO<br/>Install"]
-    F --> N["❌ TIMEOUT<br/>Pods"]
-    G --> O["❌ ERRO<br/>Tests"]
-    H --> P["❌ ERRO<br/>Upgrade"]
+    %% Fluxos de erro
+    C --> K("❌ ERRO<br/>Lint")
+    D --> L("❌ ERRO<br/>Template")
+    E --> M("❌ ERRO<br/>Install")
+    F --> N("❌ TIMEOUT<br/>Pods")
+    G --> O("❌ ERRO<br/>Tests")
+    H --> P("❌ ERRO<br/>Upgrade")
     
-    K --> Q["🧹 CLEANUP<br/>Emergency"]
+    %% Cleanup emergency
+    K --> Q("🧹 CLEANUP<br/>Emergency")
     L --> Q
     M --> Q
     N --> Q
     O --> Q
     P --> Q
     
-    Q --> R["💥 SAÍDA<br/>com Erro"]
-    J --> S["🎉 SUCESSO<br/>Completo"]
+    %% Saídas finais
+    Q --> R("💥 SAÍDA<br/>com Erro")
+    J --> S("🎉 SUCESSO<br/>Completo")
     
-    classDef success fill:#d4edda,stroke:#155724,color:#155724
-    classDef error fill:#f8d7da,stroke:#721c24,color:#721c24
-    classDef process fill:#d1ecf1,stroke:#0c5460,color:#0c5460
-    classDef wait fill:#fff3cd,stroke:#856404,color:#856404
+    %% Cores baseadas em Tailwind CSS (padrão estabelecido)
+    classDef processStyle fill:#14b8a6,stroke:#0d9488,color:#fff,rx:10,ry:10
+    classDef errorStyle fill:#f43f5e,stroke:#e11d48,color:#fff,rx:10,ry:10
+    classDef successStyle fill:#22c55e,stroke:#16a34a,color:#fff,rx:10,ry:10
+    classDef warningStyle fill:#f59e0b,stroke:#d97706,color:#fff,rx:10,ry:10
+    classDef finalStyle fill:#6366f1,stroke:#4f46e5,color:#fff,rx:10,ry:10
     
-    class A,B,C,D,E,F,G,H,I success
-    class K,L,M,N,O,P,Q,R error
-    class J,S process
-    class F wait
+    %% Aplicar cores seguindo padrão Tailwind
+    class A,B,C,D,E,G,H,I processStyle
+    class F warningStyle
+    class K,L,M,N,O,P,Q,R errorStyle
+    class J,S finalStyle
 ```
 
-**📋 Legenda:**
-- 🟢 **Verde**: Etapas normais de sucesso
-- 🔴 **Vermelho**: Cenários de erro
-- 🔵 **Azul**: Processo final (relatório/sucesso)
-- 🟡 **Amarelo**: Etapa de espera/timeout
+**📋 Legenda (Cores Tailwind CSS):**
+- 🟦 **Teal**: Etapas normais de processo (padrão workloads)
+- 🟡 **Amber**: Etapa de espera/timeout (padrão alertas)
+- 🌹 **Rose**: Cenários de erro (padrão secrets/crítico)
+- 🟣 **Indigo**: Processo final (padrão identidade/resultado)
 
 ---
 
