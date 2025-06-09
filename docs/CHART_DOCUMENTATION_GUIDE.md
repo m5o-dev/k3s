@@ -70,34 +70,34 @@
 ## 🚀 **Instalação Rápida**
 
 ### **Básica (recomendada)**
-```bash
-helm install [nome] charts/[nome] \
+ ```bash
+  helm install [nome] charts/[nome] \
   --set domain=[exemplo] \
   --set auth.password=minhasenhasegura123 \
   --create-namespace \
   --namespace [nome]
-\```
+ ```
 
 ### **Com HTTPS**
-```bash
-helm install [nome] charts/[nome] \
+  ```bash
+  helm install [nome] charts/[nome] \
   --set domain=[exemplo] \
   --set auth.password=minhasenhasegura123 \
   --set tls.enabled=true \
   --create-namespace \
   --namespace [nome]
-```
+  ```
 
 ### **Para produção**
-```bash
-helm install [nome] charts/[nome] \
+  ```bash
+  helm install [nome] charts/[nome] \
   --set domain=[exemplo] \
   --set auth.password=senha-ultra-segura \
   --set storage.size=100Gi \
   --set storage.storageClass=fast-ssd \
   --create-namespace \
   --namespace [nome]
-```
+  ```
 
 ## ⚙️ **Configurações Principais**
 
