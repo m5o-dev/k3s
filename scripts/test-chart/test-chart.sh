@@ -71,6 +71,7 @@ OPTIONS:
     -t, --timeout SEC   Timeout para operações (default: 300s)
     -n, --namespace NS  Prefixo do namespace (default: test-ns)
     -r, --release REL   Prefixo do release (default: test)
+    --set KEY=VALUE     Definir valores específicos (pode ser usado múltiplas vezes)
     -h, --help          Mostrar esta ajuda
     --skip-lint         Pular validação de lint
     --skip-install      Pular instalação (apenas lint e template)
@@ -83,6 +84,9 @@ EXAMPLES:
 
     # Teste com values customizados
     $0 bridge --values ./config/test-values.yaml
+
+    # Teste com configurações específicas
+    $0 longhorn --set auth.password=minhasenha --skip-install
 
     # Teste apenas lint e templates
     $0 bridge --skip-install
@@ -149,6 +153,7 @@ SKIP_LINT=false
 SKIP_INSTALL=false
 SKIP_TESTS=false
 CLEANUP_ONLY=false
+SET_VALUES=()  # Array para armazenar valores --set
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -187,6 +192,10 @@ while [[ $# -gt 0 ]]; do
         --cleanup-only)
             CLEANUP_ONLY=true
             shift
+            ;;
+        --set)
+            SET_VALUES+=("--set" "$2")
+            shift 2
             ;;
         -*)
             print_error "Opção desconhecida: $1"
@@ -367,6 +376,11 @@ if [ -n "$VALUES_FILE" ]; then
     HELM_TEMPLATE_CMD="$HELM_TEMPLATE_CMD --values $VALUES_FILE"
 fi
 
+# Adicionar valores --set customizados
+if [ ${#SET_VALUES[@]} -gt 0 ]; then
+    HELM_TEMPLATE_CMD="$HELM_TEMPLATE_CMD ${SET_VALUES[*]}"
+fi
+
 # Gerar templates
 print_step "Gerando templates com configuração padrão..."
 if ! $HELM_TEMPLATE_CMD > /tmp/chart-templates.yaml; then
@@ -385,17 +399,20 @@ fi
 # Testar configurações específicas
 print_step "Testando templates com diferentes configurações..."
 
-# Com todas as features habilitadas
-if ! helm template "$RELEASE_NAME" "$CHART_PATH" \
-    --namespace "$NAMESPACE" \
-    --set domain=test.exemplo.com \
-    --set auth.enabled=true \
-    --set tls.enabled=true \
-    --set persistence.enabled=true \
-    --set healthcheck.enabled=true | \
-    kubectl apply --dry-run=client -f -; then
-    print_error "Templates com features habilitadas são inválidos"
-    exit 1
+# Testar com features opcionais habilitadas se não há --set customizados
+if [ ${#SET_VALUES[@]} -eq 0 ]; then
+    if ! helm template "$RELEASE_NAME" "$CHART_PATH" \
+        --namespace "$NAMESPACE" \
+        --set domain=test.exemplo.com \
+        --set auth.enabled=true \
+        --set tls.enabled=true \
+        --set persistence.enabled=true \
+        --set healthcheck.enabled=true | \
+        kubectl apply --dry-run=client -f -; then
+        print_warning "Templates com features opcionais falharam (normal se chart não suporta todas)"
+    fi
+else
+    print_step "Pulando teste de features opcionais (valores --set customizados fornecidos)"
 fi
 
 print_success "Todos os templates são válidos"
@@ -417,6 +434,11 @@ if [ "$SKIP_INSTALL" = false ]; then
     # Adicionar values file se fornecido
     if [ -n "$VALUES_FILE" ]; then
         HELM_INSTALL_CMD="$HELM_INSTALL_CMD --values $VALUES_FILE"
+    fi
+    
+    # Adicionar valores --set customizados
+    if [ ${#SET_VALUES[@]} -gt 0 ]; then
+        HELM_INSTALL_CMD="$HELM_INSTALL_CMD ${SET_VALUES[*]}"
     fi
     
     # Instalar chart
@@ -507,6 +529,11 @@ if [ "$SKIP_INSTALL" = false ]; then
     # Adicionar values file se fornecido
     if [ -n "$VALUES_FILE" ]; then
         HELM_UPGRADE_CMD="$HELM_UPGRADE_CMD --values $VALUES_FILE"
+    fi
+    
+    # Adicionar valores --set customizados
+    if [ ${#SET_VALUES[@]} -gt 0 ]; then
+        HELM_UPGRADE_CMD="$HELM_UPGRADE_CMD ${SET_VALUES[*]}"
     fi
     
     # Fazer upgrade

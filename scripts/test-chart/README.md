@@ -13,10 +13,8 @@
 # Teste rápido (apenas sintaxe)
 ./scripts/test-chart/test-chart.sh bridge --skip-install
 
-# Testar todos os charts
-for chart in charts/*/; do
-  ./scripts/test-chart/test-chart.sh "$(basename "$chart")"
-done
+# Charts que precisam de configurações específicas
+./scripts/test-chart/test-chart.sh longhorn --set auth.password=minhasenha
 ```
 
 ---
@@ -104,6 +102,7 @@ flowchart TD
 |---------|-------------|
 | `bridge` | Teste completo (5 min) |
 | `bridge --skip-install` | Apenas sintaxe (30 seg) |
+| `longhorn --set auth.password=senha123` | Charts que precisam de configurações |
 | `bridge --timeout 600` | Charts que demoram para subir |
 | `bridge --cleanup-only` | Limpar recursos antigos |
 
