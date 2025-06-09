@@ -52,7 +52,7 @@ Criar charts Helm **simples e amigáveis** para pessoas aprendendo Kubernetes. O
 
 ### **📁 Diretório Padrão**
 ```
-new-charts/nome-do-chart/
+charts/nome-do-chart/
 ├── Chart.yaml              # Metadados do chart
 ├── values.yaml             # Configurações (ver CHART_NAMING_STANDARDS.md)
 ├── README.md               # Documentação focada no usuário

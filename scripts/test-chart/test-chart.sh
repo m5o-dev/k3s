@@ -64,7 +64,7 @@ USAGE:
     $0 <chart-name> [options]
 
 ARGUMENTS:
-    chart-name          Nome do chart (deve existir em new-charts/)
+    chart-name          Nome do chart (deve existir em charts/)
 
 OPTIONS:
     -v, --values FILE   Arquivo de values customizado
@@ -94,7 +94,7 @@ REQUIREMENTS:
     - helm (v3.x)
     - kubectl (configurado)
     - Cluster Kubernetes acessível
-    - Chart deve existir em new-charts/[chart-name]
+    - Chart deve existir em charts/[chart-name]
 EOF
 }
 
@@ -219,11 +219,11 @@ fi
 print_header "🧪 TESTE DE CHART: $CHART_NAME"
 
 # Verificar se chart existe
-CHART_PATH="new-charts/$CHART_NAME"
+CHART_PATH="charts/$CHART_NAME"
 if [ ! -d "$CHART_PATH" ]; then
     print_error "Chart não encontrado: $CHART_PATH"
     print_warning "Charts disponíveis:"
-    ls -1 new-charts/ 2>/dev/null | grep -v '\..*' || echo "  (nenhum chart encontrado)"
+    ls -1 charts/ 2>/dev/null | grep -v '\..*' || echo "  (nenhum chart encontrado)"
     exit 1
 fi
 

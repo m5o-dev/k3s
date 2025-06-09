@@ -247,7 +247,7 @@ healthcheck:
 ```yaml
 - name: Test Charts
   run: |
-    for chart in new-charts/*/; do
+    for chart in charts/*/; do
       chart_name=$(basename "$chart")
       echo "Testing chart: $chart_name"
       ./scripts/test-chart/test-chart.sh "$chart_name" --timeout 600
@@ -260,7 +260,7 @@ healthcheck:
 #!/bin/bash
 # Testar todos os charts disponíveis
 
-for chart in new-charts/*/; do
+for chart in charts/*/; do
     chart_name=$(basename "$chart")
     echo "🧪 Testando chart: $chart_name"
     
@@ -431,13 +431,13 @@ export TEST_CHART_RELEASE_PREFIX="ci"
 
 #### **1. Chart não encontrado**
 ```
-❌ Chart não encontrado: new-charts/meuapp
+❌ Chart não encontrado: charts/meuapp
 ```
 
 **Solução:**
 ```bash
 # Verificar charts disponíveis
-ls -la new-charts/
+ls -la charts/
 
 # Usar nome correto
 ./scripts/test-chart/test-chart.sh bridge  # não 'meuapp'

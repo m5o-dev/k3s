@@ -126,7 +126,7 @@ A pasta [`examples/`](./examples/) contém **templates prontos** para copiar e a
 
 ### **Para Tutoriais/Blog Posts**
 
-1. **🎯 Use** charts da pasta `new-charts/` 
+1. **🎯 Use** charts da pasta `charts/` 
 2. **💡 Mostre** comandos simples: `--set domain=app.com`
 3. **📚 Referencie** esta documentação para explicações técnicas
 
@@ -134,7 +134,7 @@ A pasta [`examples/`](./examples/) contém **templates prontos** para copiar e a
 
 ```bash
 # Simples e intuitivo
-helm install bridge new-charts/bridge \
+helm install bridge charts/bridge \
   --set domain=bridge.com
 ```
 
@@ -212,7 +212,7 @@ advanced: {...}
 
 - **🐛 Issues**: Para bugs nos guidelines ou exemplos
 - **💡 Discussões**: Para propostas de melhorias
-- **📚 Tutoriais**: Consulte charts em `new-charts/`
+- **📚 Tutoriais**: Consulte charts em `charts/`
 
 ---
 

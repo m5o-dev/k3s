@@ -471,15 +471,15 @@ resources:
 
 ```bash
 # Verificar se todos os recursos têm labels obrigatórias
-helm template test new-charts/[chart] --set domain=test.com | \
+helm template test charts/[chart] --set domain=test.com | \
   yq e 'select(.metadata.labels."app.kubernetes.io/name" == null) | .kind + "/" + .metadata.name' -
 
 # Verificar naming consistency
-helm template test new-charts/[chart] --set domain=test.com | \
+helm template test charts/[chart] --set domain=test.com | \
   yq e '.metadata.name' - | grep -v "test-[chart]" || echo "✅ Naming OK"
 
 # Verificar seletores
-helm template test new-charts/[chart] --set domain=test.com | \
+helm template test charts/[chart] --set domain=test.com | \
   yq e 'select(.spec.selector.matchLabels."app.kubernetes.io/version") | "❌ Version in selector: " + .kind + "/" + .metadata.name' -
 ```
 
