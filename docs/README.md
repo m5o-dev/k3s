@@ -12,45 +12,80 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 ## 📋 **Documentos Principais**
 
-### **1. 📖 [CHART_GUIDELINES.md](./CHART_GUIDELINES.md)**
-**O documento principal** com todos os padrões obrigatórios:
+### **📚 Filosofia e Estrutura**
+
+#### **1. 📖 [CHART_GUIDELINES.md](./CHART_GUIDELINES.md)**
+**Filosofia e estrutura** de charts - documento central:
+- ✅ Objetivos e princípios fundamentais
 - ✅ Estrutura de diretórios
-- ✅ Labels padrão (kubernetes.io)
-- ✅ Convenções de nomenclatura
-- ✅ Padrões de templates
+- ✅ Templates padrão essenciais
 - ✅ Checklist de qualidade
+- ✅ Referências para documentação específica
 
 **👥 Para quem:** Desenvolvedores criando novos charts
 
-### **2. ⚙️ [VALUES_PATTERNS.md](./VALUES_PATTERNS.md)**
-**Guia completo** para estruturar o `values.yaml`:
-- ✅ Estrutura obrigatória (Essencial → Opcional → Avançado)
+#### **2. 🏷️ [NAMING_STANDARDS.md](./NAMING_STANDARDS.md)**
+**Padrões de nomenclatura e labels** - referência obrigatória:
+- ✅ 6 labels obrigatórias kubernetes.io
 - ✅ Convenções de nomenclatura
-- ✅ Comentários educativos
+- ✅ Estrutura completa do values.yaml
+- ✅ Sintaxe correta do Helm
+- ✅ Comandos de verificação
+
+**👥 Para quem:** Todos os desenvolvedores - referência essencial
+
+#### **3. ⚙️ [VALUES_PATTERNS.md](./VALUES_PATTERNS.md)**
+**Padrões específicos** para values.yaml:
 - ✅ Padrões por tipo de aplicação
+- ✅ Configurações específicas
+- ✅ Exemplos práticos
 - ✅ Melhores práticas
 
-**👥 Para quem:** Todos que trabalham com values.yaml
+**👥 Para quem:** Desenvolvedores configurando charts específicos
 
-### **3. 🏥 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
-**Guia completo** para health checks e verificações de saúde:
+### **🔧 Implementação e Operação**
+
+#### **4. 🩺 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
+**Guia completo** para health checks:
 - ✅ Tipos de probes (startup, liveness, readiness)
 - ✅ Métodos de verificação (HTTP, TCP, exec)
 - ✅ Configurações por tipo de aplicação
-- ✅ Troubleshooting e resolução de problemas
+- ✅ Troubleshooting específico
 - ✅ Implementação step-by-step
 
 **👥 Para quem:** Desenvolvedores implementando aplicações confiáveis
 
-### **4. 🔧 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
+#### **5. 🚨 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
 **Guia de resolução** de problemas comuns:
-- ✅ Problemas mais frequentes e soluções
+- ✅ 5 problemas mais frequentes
 - ✅ Comandos de debug essenciais
 - ✅ Checklist de verificação rápida
-- ✅ Template para reports de problemas
+- ✅ Template para reports
 - ✅ Dicas de prevenção
 
-**👥 Para quem:** Todos os usuários, especialmente iniciantes
+**👥 Para quem:** Operadores e usuários - resolução de problemas
+
+### **🧪 Testes e Qualidade**
+
+#### **6. 🧪 [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)**
+**Estratégia completa** de testes e validação:
+- ✅ Filosofia e metodologia de testes
+- ✅ Múltiplas camadas de validação
+- ✅ CI/CD integration
+- ✅ Ferramentas recomendadas
+- ✅ Métricas de qualidade
+
+**👥 Para quem:** DevOps e desenvolvedores - qualidade e confiabilidade
+
+#### **7. 🧪 [scripts/test-chart/](../scripts/test-chart/README.md)**
+**Scripts automatizados** de teste:
+- ✅ Script completo de validação
+- ✅ Testes em múltiplas camadas
+- ✅ Cleanup automático
+- ✅ Integração com CI/CD
+- ✅ Debug e troubleshooting
+
+**👥 Para quem:** DevOps - automação de testes
 
 ## 🔧 **Exemplos Práticos**
 
