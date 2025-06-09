@@ -63,6 +63,6 @@ spec:
     env:
     - name: REDIS_PASSWORD
       valueFrom:
-        secretRef:
+        secretKeyRef:
           name: "{{ .Release.Name }}-{{ .Chart.Name }}-credentials"
           key: REDIS_PASSWORD 
