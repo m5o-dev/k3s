@@ -49,6 +49,28 @@ auth:
 # TLS/HTTPS
 tls:
   enabled: false               # Habilita HTTPS automático
+
+# Health Checks para monitoramento da aplicação
+healthcheck:
+  enabled: false               # Habilita health checks
+  startup:
+    enabled: false             # Para apps que demoram para iniciar
+    path: "/health"           # Endpoint de verificação
+    initialDelaySeconds: 10   # Aguardar antes do primeiro check
+    periodSeconds: 10         # Intervalo entre checks
+    failureThreshold: 30      # Tentativas antes de falhar
+  liveness:
+    enabled: false             # Detecção de apps travadas
+    path: "/health"           # Endpoint de verificação
+    initialDelaySeconds: 30   # Aguardar app estar rodando
+    periodSeconds: 10         # Intervalo entre checks
+    failureThreshold: 3       # Tentativas antes de reiniciar
+  readiness:
+    enabled: false             # Controle de tráfego
+    path: "/ready"            # Endpoint de prontidão
+    initialDelaySeconds: 5    # Verificar logo após startup
+    periodSeconds: 5          # Intervalo entre checks
+    failureThreshold: 3       # Tentativas antes de remover do service
   
 # Configurações de Rede
 networking:

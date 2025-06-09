@@ -1,0 +1,240 @@
+# Exemplo de Test Pod - Helm Tests
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-test"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: { ? { .Chart.AppVersion | quote } }
+    app.kubernetes.io/component: "test"
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+  - name: test
+    image: curlimages/curl:latest
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      echo "🧪 Iniciando testes do {{ .Chart.Name }}..."
+
+      # =================================================================
+      # TESTE 1: Conectividade com Service
+      # =================================================================
+      echo "✅ Testando conectividade com service..."
+      SERVICE_URL="http://{{ .Release.Name }}-{{ .Chart.Name }}:80"
+
+      # Aguardar service estar disponível
+      for i in $(seq 1 30); do
+        if curl -f --connect-timeout 5 $SERVICE_URL/ >/dev/null 2>&1; then
+          echo "✅ Service respondendo em $SERVICE_URL"
+          break
+        fi
+        echo "⏳ Aguardando service... (tentativa $i/30)"
+        sleep 2
+      done
+
+      # Testar se service responde
+      curl -f --connect-timeout 10 $SERVICE_URL/ || {
+        echo "❌ Service não está respondendo em $SERVICE_URL"
+        exit 1
+      }
+
+      # =================================================================
+      # TESTE 2: Verificar IngressRoute (se domain configurado)
+      # =================================================================
+      {{- if .Values.domain }}
+      echo "✅ Verificando IngressRoute para {{ .Values.domain }}..."
+
+      # Verificar se IngressRoute existe
+      if ! nslookup {{ .Values.domain }} >/dev/null 2>&1; then
+        echo "⚠️  DNS não configurado para {{ .Values.domain }} (normal em teste)"
+      else
+        echo "✅ DNS configurado para {{ .Values.domain }}"
+      fi
+      {{- end }}
+
+      # =================================================================
+      # TESTE 3: Autenticação (se habilitada)
+      # =================================================================
+      {{- if .Values.auth.enabled }}
+      echo "✅ Testando autenticação..."
+
+      # Testar acesso sem credenciais (deve falhar)
+      if curl -f --connect-timeout 10 $SERVICE_URL/ >/dev/null 2>&1; then
+        echo "❌ Autenticação não está funcionando - acesso permitido sem credenciais"
+        exit 1
+      else
+        echo "✅ Autenticação funcionando - acesso negado sem credenciais"
+      fi
+
+      # Testar com credenciais (se configuradas)
+      {{- if and .Values.auth.username .Values.auth.password }}
+      echo "✅ Testando acesso com credenciais..."
+      if curl -f --connect-timeout 10 -u "{{ .Values.auth.username }}:{{ .Values.auth.password }}" $SERVICE_URL/ >/dev/null 2>&1; then
+        echo "✅ Autenticação com credenciais funcionando"
+      else
+        echo "⚠️  Credenciais podem estar incorretas ou endpoint não suporta basic auth"
+      fi
+      {{- end }}
+      {{- end }}
+
+      # =================================================================
+      # TESTE 4: Health Checks (se habilitados)
+      # =================================================================
+      {{- if .Values.healthcheck.enabled }}
+      echo "✅ Testando health checks..."
+
+      {{- if .Values.healthcheck.liveness.enabled }}
+      HEALTH_PATH="{{ .Values.healthcheck.liveness.path | default "/health" }}"
+      echo "✅ Testando liveness probe em $HEALTH_PATH..."
+      curl -f --connect-timeout 10 "$SERVICE_URL$HEALTH_PATH" || {
+        echo "❌ Liveness probe falhando em $SERVICE_URL$HEALTH_PATH"
+        exit 1
+      }
+      echo "✅ Liveness probe funcionando"
+      {{- end }}
+
+      {{- if .Values.healthcheck.readiness.enabled }}
+      READY_PATH="{{ .Values.healthcheck.readiness.path | default "/ready" }}"
+      echo "✅ Testando readiness probe em $READY_PATH..."
+      curl -f --connect-timeout 10 "$SERVICE_URL$READY_PATH" || {
+        echo "❌ Readiness probe falhando em $SERVICE_URL$READY_PATH"
+        exit 1
+      }
+      echo "✅ Readiness probe funcionando"
+      {{- end }}
+      {{- end }}
+
+      # =================================================================
+      # TESTE 5: Verificar Recursos Kubernetes
+      # =================================================================
+      echo "✅ Verificando recursos Kubernetes..."
+
+      # Verificar se Deployment existe e está ready
+      if command -v kubectl >/dev/null 2>&1; then
+        echo "📦 Verificando Deployment..."
+        kubectl get deployment "{{ .Release.Name }}-{{ .Chart.Name }}" -n "{{ .Release.Namespace }}" || {
+          echo "❌ Deployment não encontrado"
+          exit 1
+        }
+        
+        echo "🌐 Verificando Service..."
+        kubectl get service "{{ .Release.Name }}-{{ .Chart.Name }}" -n "{{ .Release.Namespace }}" || {
+          echo "❌ Service não encontrado"
+          exit 1
+        }
+        
+        {{- if .Values.domain }}
+        echo "🚪 Verificando IngressRoute..."
+        kubectl get ingressroute "{{ .Release.Name }}-{{ .Chart.Name }}" -n "{{ .Release.Namespace }}" || {
+          echo "❌ IngressRoute não encontrado"
+          exit 1
+        }
+        {{- end }}
+        
+        {{- if .Values.persistence.enabled }}
+        echo "💾 Verificando PVC..."
+        kubectl get pvc "{{ .Release.Name }}-{{ .Chart.Name }}-data" -n "{{ .Release.Namespace }}" || {
+          echo "❌ PVC não encontrado"
+          exit 1
+        }
+        {{- end }}
+        
+        echo "✅ Todos os recursos Kubernetes encontrados"
+      else
+        echo "⚠️  kubectl não disponível - pulando verificação de recursos"
+      fi
+
+      # =================================================================
+      # TESTE 6: Labels e Naming (Conformidade)
+      # =================================================================
+      echo "✅ Verificando conformidade de labels e naming..."
+
+      # Verificar se response tem headers corretos (se aplicável)
+      if curl -I --connect-timeout 10 $SERVICE_URL/ 2>/dev/null | grep -i "server:" >/dev/null; then
+        echo "✅ Service retornando headers HTTP"
+      fi
+
+      # =================================================================
+      # FINALIZANDO TESTES
+      # =================================================================
+      echo ""
+      echo "🎉 ================================================"
+      echo "🎉 TODOS OS TESTES PASSARAM COM SUCESSO!"
+      echo "🎉 Chart {{ .Chart.Name }} está funcionando corretamente"
+      echo "🎉 Release: {{ .Release.Name }}"
+      echo "🎉 Namespace: {{ .Release.Namespace }}"
+      echo "🎉 ================================================"
+      echo ""
+
+# PADRÕES PARA HELM TESTS:
+# ========================
+#
+# 1. LABELS OBRIGATÓRIAS:
+#    - Todas as 6 labels kubernetes.io padrão
+#    - app.kubernetes.io/component: "test"
+#
+# 2. ANNOTATIONS HELM:
+#    - "helm.sh/hook": test
+#    - "helm.sh/hook-weight": "1" (ordem de execução)
+#    - "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+#
+# 3. SPEC DO CONTAINER:
+#    - restartPolicy: Never (obrigatório para tests)
+#    - image: curlimages/curl:latest (leve e com ferramentas)
+#    - command: shell script com testes
+#
+# 4. ESTRUTURA DOS TESTES:
+#    - set -e (falha no primeiro erro)
+#    - Echo informativos com emojis
+#    - Testes condicionais baseados em .Values
+#    - Exit codes apropriados (0=sucesso, 1=falha)
+#
+# 5. TIPOS DE TESTE RECOMENDADOS:
+#    - Conectividade com Service
+#    - Health checks (se habilitados)
+#    - Autenticação (se habilitada)
+#    - Recursos Kubernetes existem
+#    - IngressRoute configurado (se domain definido)
+#
+# 6. BOAS PRÁTICAS:
+#    - Timeouts em todas as requisições
+#    - Retry logic para recursos que demoram
+#    - Logs claros e informativos
+#    - Não assumir recursos externos (DNS, etc.)
+#    - Testar apenas o que o chart controla
+
+# =================================================================
+# PERSONALIZAÇÃO POR TIPO DE APLICAÇÃO
+# =================================================================
+#
+# Para BANCOS DE DADOS:
+# - Testar conexão TCP em vez de HTTP
+# - Verificar se aceita conexões
+# - Testar criação de database/schema básico
+#
+# Para APIs REST:
+# - Testar endpoints específicos (/api/health, /api/version)
+# - Verificar formato de resposta JSON
+# - Testar autenticação JWT/OAuth
+#
+# Para APLICAÇÕES WEB:
+# - Testar página inicial (/)
+# - Verificar assets estáticos (/css, /js)
+# - Testar formulários básicos
+#
+# Para WORKERS/BACKGROUND:
+# - Verificar se processo está rodando
+# - Testar processamento de filas
+# - Verificar logs de atividade 

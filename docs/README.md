@@ -32,6 +32,26 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Todos que trabalham com values.yaml
 
+### **3. 🏥 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
+**Guia completo** para health checks e verificações de saúde:
+- ✅ Tipos de probes (startup, liveness, readiness)
+- ✅ Métodos de verificação (HTTP, TCP, exec)
+- ✅ Configurações por tipo de aplicação
+- ✅ Troubleshooting e resolução de problemas
+- ✅ Implementação step-by-step
+
+**👥 Para quem:** Desenvolvedores implementando aplicações confiáveis
+
+### **4. 🔧 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
+**Guia de resolução** de problemas comuns:
+- ✅ Problemas mais frequentes e soluções
+- ✅ Comandos de debug essenciais
+- ✅ Checklist de verificação rápida
+- ✅ Template para reports de problemas
+- ✅ Dicas de prevenção
+
+**👥 Para quem:** Todos os usuários, especialmente iniciantes
+
 ## 🔧 **Exemplos Práticos**
 
 A pasta [`examples/`](./examples/) contém **templates prontos** para copiar e adaptar:
@@ -46,6 +66,7 @@ A pasta [`examples/`](./examples/) contém **templates prontos** para copiar e a
 | 💾 **[pvc.yaml](./examples/pvc.yaml)** | PersistentVolumeClaim | Armazenamento |
 | 👤 **[serviceaccount.yaml](./examples/serviceaccount.yaml)** | ServiceAccount + RBAC | Permissões |
 | 🛠️ **[middleware.yaml](./examples/middleware.yaml)** | Middlewares Traefik | Auth, CORS, HTTPS |
+| 🧪 **[test-pod.yaml](./examples/test-pod.yaml)** | Helm Tests | Validação funcional |
 
 **👥 Para quem:** Desenvolvedores implementando templates
 

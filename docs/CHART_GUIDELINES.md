@@ -596,28 +596,409 @@ domain: "app.exemplo.com"
 
 ## ✅ **Checklist de Qualidade**
 
+### **📋 Validação Básica**
 - [ ] **Labels**: Todas as 6 labels kubernetes.io em TODOS os recursos
 - [ ] **Nomes**: `{{ .Release.Name }}-{{ .Chart.Name }}` consistente
 - [ ] **Values**: Estrutura Essencial → Opcional → Avançado
 - [ ] **Comentários**: Explicativos e educativos no values.yaml
 - [ ] **Defaults**: Funcionam out-of-the-box
-- [ ] **Teste**: `helm template` funciona sem erros
-- [ ] **Experiência**: `--set domain=app.com` funciona
 - [ ] **README**: Documentação clara com exemplos
 
-## 🧪 **Testes Obrigatórios**
+### **🧪 Validação de Testes**
+- [ ] **Helm Lint**: `helm lint` passa sem erros
+- [ ] **Template**: `helm template` gera YAML válido  
+- [ ] **Dry Run**: `kubectl apply --dry-run=client` funciona
+- [ ] **Helm Test**: Templates de teste implementados
+- [ ] **Install**: Chart instala corretamente
+- [ ] **Upgrade**: Chart faz upgrade sem problemas
+- [ ] **Uninstall**: Remove todos os recursos
 
+### **🎯 Validação de Experiência**
+- [ ] **Comando Básico**: `--set domain=app.com` funciona
+- [ ] **Features**: Todas as funcionalidades testadas
+- [ ] **Health Checks**: Implementados quando apropriado
+- [ ] **Troubleshooting**: Documentado no TROUBLESHOOTING.md
+
+## 🧪 **ESTRATÉGIAS DE TESTE E VALIDAÇÃO**
+
+### **📋 Filosofia de Testes**
+- **Teste cedo e frequentemente**: Validar a cada mudança
+- **Automatização total**: Scripts para CI/CD
+- **Múltiplas camadas**: Sintaxe → Funcionalidade → Integração
+- **Feedback rápido**: Falhas devem ser identificadas rapidamente
+
+---
+
+### **🔍 1. VALIDAÇÃO DE SINTAXE**
+
+#### **Helm Lint (Obrigatório)**
 ```bash
-# Teste básico
-helm template test-chart new-charts/[nome] \
+# Validar sintaxe básica do chart
+helm lint new-charts/[nome-do-chart]
+
+# Validar com diferentes values
+helm lint new-charts/[nome-do-chart] \
+  --values new-charts/[nome-do-chart]/values.yaml
+
+# Validar com configurações específicas
+helm lint new-charts/[nome-do-chart] \
+  --set domain=test.com \
+  --set auth.enabled=true
+```
+
+**Critérios de Aceite:**
+- ✅ Zero erros de lint
+- ✅ Zero warnings críticos
+- ✅ Todas as combinações de values testadas
+
+---
+
+#### **Template Validation**
+```bash
+# Gerar templates sem instalar
+helm template test-release new-charts/[nome-do-chart] \
   --set domain=test.exemplo.com
 
-# Teste com features
-helm template test-chart new-charts/[nome] \
+# Validar YAML gerado
+helm template test-release new-charts/[nome-do-chart] \
+  --set domain=test.exemplo.com | kubectl apply --dry-run=client -f -
+
+# Testar cenários específicos
+helm template test-release new-charts/[nome-do-chart] \
   --set domain=test.exemplo.com \
   --set auth.enabled=true \
+  --set tls.enabled=true \
   --set persistence.enabled=true
 ```
+
+---
+
+### **🧪 2. HELM TESTS (Testes Funcionais)**
+
+#### **Estrutura de Test Templates**
+Criar arquivo `templates/tests/test-pod.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-test"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: "test"
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+  - name: test
+    image: curlimages/curl:latest
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      echo "🧪 Iniciando testes do {{ .Chart.Name }}..."
+      
+      # Teste 1: Verificar se service está respondendo
+      echo "✅ Testando conectividade com service..."
+      curl -f http://{{ .Release.Name }}-{{ .Chart.Name }}:80/ || exit 1
+      
+      {{- if .Values.domain }}
+      # Teste 2: Verificar se IngressRoute foi criado
+      echo "✅ Verificando IngressRoute..."
+      nslookup {{ .Values.domain }} || echo "⚠️  DNS não configurado para {{ .Values.domain }}"
+      {{- end }}
+      
+      {{- if .Values.auth.enabled }}
+      # Teste 3: Verificar autenticação
+      echo "✅ Testando autenticação..."
+      curl -f http://{{ .Release.Name }}-{{ .Chart.Name }}:80/ && exit 1 || echo "✅ Auth funcionando"
+      {{- end }}
+      
+      {{- if .Values.healthcheck.enabled }}
+      # Teste 4: Verificar health endpoints
+      echo "✅ Testando health checks..."
+      {{- if .Values.healthcheck.liveness.enabled }}
+      curl -f http://{{ .Release.Name }}-{{ .Chart.Name }}:80{{ .Values.healthcheck.liveness.path | default "/health" }} || exit 1
+      {{- end }}
+      {{- if .Values.healthcheck.readiness.enabled }}
+      curl -f http://{{ .Release.Name }}-{{ .Chart.Name }}:80{{ .Values.healthcheck.readiness.path | default "/ready" }} || exit 1
+      {{- end }}
+      {{- end }}
+      
+      echo "🎉 Todos os testes passaram!"
+```
+
+#### **Executar Helm Tests**
+```bash
+# Instalar chart
+helm install test-release new-charts/[nome-do-chart] \
+  --set domain=test.exemplo.com
+
+# Executar testes
+helm test test-release
+
+# Ver logs dos testes
+kubectl logs -l app.kubernetes.io/component=test
+
+# Limpar após testes
+helm uninstall test-release
+```
+
+---
+
+### **⚙️ 3. CHART TESTING (ct)**
+
+#### **Instalação**
+```bash
+# Instalar chart-testing
+curl -sSL https://github.com/helm/chart-testing/releases/download/v3.10.1/chart-testing_3.10.1_linux_amd64.tar.gz | tar xz
+sudo mv ct /usr/local/bin/
+```
+
+#### **Configuração (.github/ct.yaml)**
+```yaml
+# Configuração do chart-testing
+remote: origin
+target-branch: main
+chart-dirs:
+  - new-charts
+chart-repos:
+  - bitnami=https://charts.bitnami.com/bitnami
+helm-extra-args: --timeout 600s
+check-version-increment: false
+debug: true
+```
+
+#### **Comandos de Validação**
+```bash
+# Listar charts modificados
+ct list-changed --config .github/ct.yaml
+
+# Lint de charts específicos
+ct lint --config .github/ct.yaml --charts new-charts/bridge
+
+# Instalar e testar charts
+ct install --config .github/ct.yaml --charts new-charts/bridge
+```
+
+---
+
+### **🔄 4. TESTES DE INTEGRAÇÃO**
+
+#### **Script de Teste Completo**
+Criar `scripts/test-chart.sh`:
+
+```bash
+#!/bin/bash
+set -e
+
+CHART_NAME=$1
+RELEASE_NAME="test-$(date +%s)"
+NAMESPACE="test-ns-$(date +%s)"
+
+if [ -z "$CHART_NAME" ]; then
+  echo "❌ Uso: $0 <chart-name>"
+  exit 1
+fi
+
+echo "🧪 Testando chart: $CHART_NAME"
+echo "📦 Release: $RELEASE_NAME"
+echo "🏠 Namespace: $NAMESPACE"
+
+# Criar namespace de teste
+kubectl create namespace $NAMESPACE
+
+# Função de cleanup
+cleanup() {
+  echo "🧹 Limpando recursos de teste..."
+  helm uninstall $RELEASE_NAME -n $NAMESPACE || true
+  kubectl delete namespace $NAMESPACE || true
+}
+trap cleanup EXIT
+
+# Teste 1: Helm Lint
+echo "✅ Executando helm lint..."
+helm lint new-charts/$CHART_NAME
+
+# Teste 2: Template Validation
+echo "✅ Validando templates..."
+helm template $RELEASE_NAME new-charts/$CHART_NAME \
+  --namespace $NAMESPACE \
+  --set domain=test.exemplo.com | kubectl apply --dry-run=client -f -
+
+# Teste 3: Instalação
+echo "✅ Instalando chart..."
+helm install $RELEASE_NAME new-charts/$CHART_NAME \
+  --namespace $NAMESPACE \
+  --set domain=test.exemplo.com \
+  --wait --timeout 300s
+
+# Teste 4: Verificar recursos
+echo "✅ Verificando recursos criados..."
+kubectl get all -n $NAMESPACE
+
+# Teste 5: Helm Test
+echo "✅ Executando helm test..."
+helm test $RELEASE_NAME -n $NAMESPACE
+
+# Teste 6: Upgrade
+echo "✅ Testando upgrade..."
+helm upgrade $RELEASE_NAME new-charts/$CHART_NAME \
+  --namespace $NAMESPACE \
+  --set domain=test.exemplo.com \
+  --set replicas=2 \
+  --wait --timeout 300s
+
+echo "🎉 Todos os testes passaram!"
+```
+
+#### **Uso do Script**
+```bash
+# Tornar executável
+chmod +x scripts/test-chart.sh
+
+# Testar chart específico
+./scripts/test-chart.sh bridge
+
+# Testar todos os charts
+for chart in new-charts/*/; do
+  chart_name=$(basename "$chart")
+  ./scripts/test-chart.sh "$chart_name"
+done
+```
+
+---
+
+### **🚀 5. CI/CD INTEGRATION**
+
+#### **GitHub Actions (.github/workflows/test-charts.yml)**
+```yaml
+name: Test Charts
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: [ 'new-charts/**' ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.12.1
+
+    - name: Setup chart-testing
+      uses: helm/chart-testing-action@v2.6.1
+
+    - name: Create k3s cluster
+      uses: nolar/setup-k3d-k3s@v1
+      with:
+        version: v1.27
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run chart-testing (list-changed)
+      id: list-changed
+      run: |
+        changed=$(ct list-changed --config .github/ct.yaml)
+        if [[ -n "$changed" ]]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run chart-testing (lint)
+      run: ct lint --config .github/ct.yaml
+
+    - name: Run chart-testing (install)
+      run: ct install --config .github/ct.yaml
+      if: steps.list-changed.outputs.changed == 'true'
+```
+
+---
+
+### **📋 6. CHECKLIST DE TESTES OBRIGATÓRIOS**
+
+#### **Antes de Criar PR**
+- [ ] `helm lint` passa sem erros
+- [ ] `helm template` gera YAML válido
+- [ ] Templates funcionam com values padrão
+- [ ] Templates funcionam com todas as features habilitadas
+- [ ] README tem exemplos atualizados
+- [ ] `helm test` está implementado e funciona
+
+#### **Antes de Merge**
+- [ ] CI/CD passa todos os testes
+- [ ] Chart instala em cluster limpo
+- [ ] Chart faz upgrade corretamente
+- [ ] Chart é removido completamente com `helm uninstall`
+- [ ] Documentação está atualizada
+
+#### **Testes de Regressão**
+- [ ] Backward compatibility mantida
+- [ ] Breaking changes documentados
+- [ ] Migration guide atualizado (se necessário)
+
+---
+
+### **🛠️ 7. FERRAMENTAS RECOMENDADAS**
+
+#### **Validação Local**
+```bash
+# kubeval - Validar YAML Kubernetes
+kubeval <(helm template test new-charts/bridge --set domain=test.com)
+
+# kube-score - Análise de melhores práticas
+helm template test new-charts/bridge --set domain=test.com | kube-score score -
+
+# helm-docs - Gerar documentação automática
+helm-docs new-charts/bridge
+```
+
+#### **Monitoramento de Qualidade**
+```bash
+# Verificar se todos os recursos têm labels obrigatórias
+helm template test new-charts/bridge --set domain=test.com | \
+  yq e 'select(.metadata.labels."app.kubernetes.io/name" == null) | .kind + "/" + .metadata.name' -
+
+# Verificar naming consistency
+helm template test new-charts/bridge --set domain=test.com | \
+  yq e '.metadata.name' - | grep -v "test-bridge" || echo "✅ Naming OK"
+```
+
+---
+
+### **🎯 8. MÉTRICAS DE QUALIDADE**
+
+#### **Métricas Obrigatórias**
+- **✅ Lint Score**: 100% sem erros
+- **✅ Test Coverage**: Helm tests implementados
+- **✅ Install Success**: 100% em cluster limpo
+- **✅ Upgrade Success**: 100% sem downtime
+- **✅ Documentation**: README atualizado
+
+#### **Métricas Avançadas**
+- **⚡ Install Time**: < 60 segundos
+- **🔄 Upgrade Time**: < 30 segundos
+- **📦 Chart Size**: < 50KB comprimido
+- **🏷️ Label Compliance**: 100% dos recursos
+
+---
+
+**💡 Lembre-se:** Testes não são apenas para encontrar bugs, mas para garantir uma **experiência consistente e confiável** para todos os usuários dos nossos charts!
 
 ## 🚨 **Sintaxe Correta do Helm**
 
