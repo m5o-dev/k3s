@@ -76,7 +76,7 @@ helm install [nome] charts/[nome] \
   --set auth.password=minhasenhasegura123 \
   --create-namespace \
   --namespace [nome]
-```
+\```
 
 ### **Com HTTPS**
 ```bash
