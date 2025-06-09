@@ -24,7 +24,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Desenvolvedores criando novos charts
 
-#### **2. 🏷️ [NAMING_STANDARDS.md](./NAMING_STANDARDS.md)**
+#### **2. 🏷️ [CHART_NAMING_STANDARDS.md](./CHART_NAMING_STANDARDS.md)**
 **Padrões de nomenclatura e labels** - referência obrigatória:
 - ✅ 6 labels obrigatórias kubernetes.io
 - ✅ Convenções de nomenclatura
@@ -34,7 +34,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Todos os desenvolvedores - referência essencial
 
-#### **3. ⚙️ [VALUES_PATTERNS.md](./VALUES_PATTERNS.md)**
+#### **3. ⚙️ [CHART_VALUES_GUIDE.md](./CHART_VALUES_GUIDE.md)**
 **Padrões específicos** para values.yaml:
 - ✅ Padrões por tipo de aplicação
 - ✅ Configurações específicas
@@ -55,7 +55,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 ### **🔧 Implementação e Operação**
 
-#### **5. 🩺 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
+#### **5. 🩺 [CHART_HEALTH_CHECKS.md](./CHART_HEALTH_CHECKS.md)**
 **Guia completo** para health checks:
 - ✅ Tipos de probes (startup, liveness, readiness)
 - ✅ Métodos de verificação (HTTP, TCP, exec)
@@ -65,7 +65,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Desenvolvedores implementando aplicações confiáveis
 
-#### **6. 🚨 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
+#### **6. 🚨 [CHART_TROUBLESHOOTING.md](./CHART_TROUBLESHOOTING.md)**
 **Guia de resolução** de problemas comuns:
 - ✅ 5 problemas mais frequentes
 - ✅ Comandos de debug essenciais
@@ -77,7 +77,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 ### **🧪 Testes e Qualidade**
 
-#### **7. 🧪 [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)**
+#### **7. 🧪 [CHART_TESTING_GUIDE.md](./CHART_TESTING_GUIDE.md)**
 **Estratégia completa** de testes e validação:
 - ✅ Filosofia e metodologia de testes
 - ✅ Múltiplas camadas de validação
@@ -120,7 +120,7 @@ A pasta [`examples/`](./examples/) contém **templates prontos** para copiar e a
 ### **Para Criar um Novo Chart**
 
 1. **📖 Leia** [CHART_GUIDELINES.md](./CHART_GUIDELINES.md) primeiro
-2. **📋 Use** [VALUES_PATTERNS.md](./VALUES_PATTERNS.md) para estruturar o values.yaml
+2. **📋 Use** [CHART_VALUES_GUIDE.md](./CHART_VALUES_GUIDE.md) para estruturar o values.yaml
 3. **📦 Copie** os exemplos de [`examples/`](./examples/) que precisar
 4. **✅ Valide** usando o checklist do guidelines
 

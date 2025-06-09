@@ -54,7 +54,7 @@ Criar charts Helm **simples e amigáveis** para pessoas aprendendo Kubernetes. O
 ```
 new-charts/nome-do-chart/
 ├── Chart.yaml              # Metadados do chart
-├── values.yaml             # Configurações (ver NAMING_STANDARDS.md)
+├── values.yaml             # Configurações (ver CHART_NAMING_STANDARDS.md)
 ├── README.md               # Documentação focada no usuário
 ├── templates/
 │   ├── deployment.yaml     # Aplicação principal
@@ -105,7 +105,7 @@ maintainers:
 ```
 
 ### **🏷️ Labels e Nomenclatura**
-**Ver documentação completa:** [`docs/NAMING_STANDARDS.md`](./NAMING_STANDARDS.md)
+**Ver documentação completa:** [`docs/CHART_NAMING_STANDARDS.md`](./CHART_NAMING_STANDARDS.md)
 
 **Resumo essencial:**
 - ✅ **6 labels obrigatórias** em TODOS os recursos
@@ -114,7 +114,7 @@ maintainers:
 - ❌ **NUNCA usar** `_helpers.tpl` - mantém simplicidade
 
 ### **📝 Values.yaml**
-**Ver estrutura completa:** [`docs/NAMING_STANDARDS.md#estrutura-valuesyaml`](./NAMING_STANDARDS.md#estrutura-valuesyaml)
+**Ver estrutura completa:** [`docs/CHART_NAMING_STANDARDS.md#estrutura-valuesyaml`](./CHART_NAMING_STANDARDS.md#estrutura-valuesyaml)
 
 **Ordem obrigatória:**
 1. **🚀 CONFIGURAÇÃO ESSENCIAL** (domain, image, resources)
@@ -139,7 +139,7 @@ metadata:
   name: "{{ .Release.Name }}-{{ .Chart.Name }}"
   namespace: "{{ .Release.Namespace }}"
   labels:
-    # 6 labels obrigatórias (ver NAMING_STANDARDS.md)
+    # 6 labels obrigatórias (ver CHART_NAMING_STANDARDS.md)
     app.kubernetes.io/name: "{{ .Chart.Name }}"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
@@ -176,7 +176,7 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        # Health checks opcionais (ver HEALTH_CHECKS.md)
+        # Health checks opcionais (ver CHART_HEALTH_CHECKS.md)
         {{- if .Values.healthcheck.enabled }}
         {{- if .Values.healthcheck.liveness.enabled }}
         livenessProbe:
@@ -293,29 +293,29 @@ spec:
 - [ ] **Comando Básico**: `helm install test chart --set domain=app.com` funciona
 - [ ] **Features**: Todas as funcionalidades testadas
 - [ ] **Health Checks**: Implementados quando apropriado
-- [ ] **Troubleshooting**: Documentado no TROUBLESHOOTING.md
+- [ ] **Troubleshooting**: Documentado no CHART_TROUBLESHOOTING.md
 
 ---
 
 ## 📚 **Documentação Relacionada**
 
 ### **📋 Padrões e Nomenclatura**
-- **[NAMING_STANDARDS.md](./NAMING_STANDARDS.md)** - Labels, nomenclatura, estrutura de values
-- **[VALUES_PATTERNS.md](./VALUES_PATTERNS.md)** - Padrões específicos de configuração
+- **[CHART_NAMING_STANDARDS.md](./CHART_NAMING_STANDARDS.md)** - Labels, nomenclatura, estrutura de values
+- **[CHART_VALUES_GUIDE.md](./CHART_VALUES_GUIDE.md)** - Padrões específicos de configuração
 
 ### **🔧 Implementação e Exemplos**
 - **[examples/](./examples/)** - Templates de referência prontos para usar
-- **[HEALTH_CHECKS.md](./HEALTH_CHECKS.md)** - Implementação de health checks
+- **[CHART_HEALTH_CHECKS.md](./CHART_HEALTH_CHECKS.md)** - Implementação de health checks
 
 ### **🧪 Testes e Qualidade**
-- **[TESTING_STRATEGY.md](./TESTING_STRATEGY.md)** - Estratégia completa de testes
+- **[CHART_TESTING_GUIDE.md](./CHART_TESTING_GUIDE.md)** - Estratégia completa de testes
 - **[scripts/test-chart/](../scripts/test-chart/)** - Scripts automatizados de teste
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Guia de resolução de problemas
+- **[CHART_TROUBLESHOOTING.md](./CHART_TROUBLESHOOTING.md)** - Guia de resolução de problemas
 
 ### **🚀 Processo de Desenvolvimento**
 1. **Criar chart** seguindo este guideline
-2. **Aplicar padrões** de NAMING_STANDARDS.md
-3. **Testar completamente** com TESTING_STRATEGY.md
+2. **Aplicar padrões** de CHART_NAMING_STANDARDS.md
+3. **Testar completamente** com CHART_TESTING_GUIDE.md
 4. **Documentar adequadamente** no README do chart
 
 ---
