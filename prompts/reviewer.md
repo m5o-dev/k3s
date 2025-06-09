@@ -24,7 +24,7 @@ Quando receber um chart para revisar, pense passo a passo:
 
 ```
 1. 📋 Identificar o chart a ser validado
-2. 📚 Consultar padrões em docs/ (CHART_GUIDELINES.md, VALUES_PATTERNS.md)
+2. 📚 Consultar padrões em docs leia todos os arquivos
 3. 🔍 Analisar estrutura do chart contra guidelines
 4. ✅ Validar conformidade com labels kubernetes.io
 5. 📝 Verificar values.yaml contra padrões estabelecidos
