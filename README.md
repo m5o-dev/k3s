@@ -1,11 +1,11 @@
-# 🚀 Repositório K3s - Charts, Pipelines e Recursos
+# 🚀 Repositório k3s - Charts, Pipelines e Recursos
 
-> **Repositório centralizado** para manter charts Helm, pipelines e recursos utilizados no cluster K3s pessoal.
+> **Repositório centralizado** para manter charts Helm, pipelines e recursos utilizados no cluster k3s pessoal.
 
 ## 📋 **Visão Geral**
 
 Este repositório contém uma coleção organizada de:
-- **🎯 Helm Charts** customizados e otimizados para K3s
+- **🎯 Helm Charts** customizados e otimizados para k3s
 - **📋 Pipelines** e automações
 - **🛠️ Recursos** e configurações do cluster
 - **📚 Documentação** completa e educativa
@@ -14,7 +14,7 @@ Este repositório contém uma coleção organizada de:
 - **Simplicidade primeiro**: Charts fáceis de usar e entender
 - **Padronização**: Guidelines claros e consistentes
 - **Experiência progressiva**: Do básico ao avançado
-- **Foco em K3s**: Otimizado para ambientes lightweight
+- **Foco em k3s**: Otimizado para ambientes lightweight
 
 ## 📂 **Estrutura do Repositório**
 
@@ -85,7 +85,7 @@ helm install bridge charts/bridge --set domain=bridge.local
 ## 🚀 **Como Usar**
 
 ### **1. Pré-requisitos**
-- Cluster K3s rodando
+- Cluster k3s rodando
 - Helm 3.x instalado
 - kubectl configurado
 
