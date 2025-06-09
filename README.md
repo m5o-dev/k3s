@@ -41,6 +41,10 @@ k3s/
 - **[docs/CHART_GUIDELINES.md](./docs/CHART_GUIDELINES.md)** - Padrões obrigatórios
 - **[docs/CHART_NAMING_STANDARDS.md](./docs/CHART_NAMING_STANDARDS.md)** - Labels e nomenclatura
 - **[docs/CHART_VALUES_GUIDE.md](./docs/CHART_VALUES_GUIDE.md)** - Estrutura do values.yaml
+- **[docs/CHART_DOCUMENTATION_GUIDE.md](./docs/CHART_DOCUMENTATION_GUIDE.md)** - Guia de documentação
+- **[docs/CHART_TESTING_GUIDE.md](./docs/CHART_TESTING_GUIDE.md)** - Estratégia de testes
+- **[docs/CHART_TROUBLESHOOTING.md](./docs/CHART_TROUBLESHOOTING.md)** - Resolução de problemas
+- **[docs/CHART_HEALTH_CHECKS.md](./docs/CHART_HEALTH_CHECKS.md)** - Verificações de saúde
 - **[docs/examples/](./docs/examples/)** - Templates prontos
 
 ## 🔧 **Padrões**
