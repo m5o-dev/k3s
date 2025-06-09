@@ -1,0 +1,35 @@
+# Exemplo de Service - Guidelines Simplificadas
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: { ? { .Chart.AppVersion | quote } }
+    app.kubernetes.io/component: { ? { .Values.component | default "application" | quote } }
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+
+# PADRÕES OBRIGATÓRIOS:
+# - Nome: {{ .Release.Name }}-{{ .Chart.Name }}
+# - Labels: Todas as 6 labels kubernetes.io
+# - Selector: app.kubernetes.io/name + app.kubernetes.io/instance
+# - Port: 80 (externa) -> targetPort: http (container)
+
+# EXTENSÕES OPCIONAIS:
+# - LoadBalancer: Para exposição externa
+# - NodePort: Para desenvolvimento
+# - Múltiplas portas: Adicionar mais items em ports[]

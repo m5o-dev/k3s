@@ -1,0 +1,26 @@
+{{- if .Values.harbor.externalURL }}
+{{- $url := .Values.harbor.externalURL }}
+{{- $host := regexReplaceAll "^https?://" $url "" }}
+{{- $isHTTPS := hasPrefix "https://" $url }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "registry" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`{{ $host }}`)
+    kind: Rule
+    services:
+    - name: {{ .Release.Name }}
+      port: 80  
+{{- end }} 

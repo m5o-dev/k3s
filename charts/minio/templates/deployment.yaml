@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "storage" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/component: {{ .Values.component | default "storage" }}
+        app.kubernetes.io/part-of: {{ .Chart.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      {{- if and .Values.advanced.enabled .Values.advanced.minio.security }}
+      securityContext:
+        runAsUser: {{ .Values.advanced.minio.security.runAsUser | default 1000 }}
+        runAsGroup: {{ .Values.advanced.minio.security.runAsGroup | default 1000 }}
+        fsGroup: {{ .Values.advanced.minio.security.fsGroup | default 1000 }}
+      {{- end }}
+      containers:
+      - name: minio
+        image: "{{ .Values.advanced.minio.image.repository | default "quay.io/minio/minio" }}:{{ .Values.advanced.minio.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.advanced.minio.image.pullPolicy | default "IfNotPresent" }}
+        args:
+        - "server"
+        - "/data"
+        - "--console-address"
+        - ":9001"
+        ports:
+        - name: api
+          containerPort: 9000
+          protocol: TCP
+        - name: console
+          containerPort: 9001
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}-{{ .Chart.Name }}-credentials
+        env:
+        - name: MINIO_SERVER_URL
+          value: "https://{{ .Values.domains.api }}"
+        - name: MINIO_BROWSER_REDIRECT_URL
+          value: "https://{{ .Values.domains.console }}"
+        - name: MINIO_DOMAIN
+          value: "{{ .Values.domains.api }}"
+        - name: MINIO_ROOT_USER_POLICY
+          value: "consoleAdmin"
+        - name: MINIO_API_REQUESTS_MAX
+          value: "10000"
+        - name: MINIO_CONSOLE_PBKDF_PASSPHRASE
+          value: "minio-console-encryption"
+        - name: MINIO_BROWSER_LOGIN_ANIMATION
+          value: "off"
+        {{- if and .Values.advanced.enabled .Values.advanced.minio.server.env }}
+        {{- range $key, $value := .Values.advanced.minio.server.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        {{- if and .Values.advanced.enabled .Values.advanced.minio.health.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /minio/health/live
+            port: api
+          initialDelaySeconds: {{ .Values.advanced.minio.health.liveness.initialDelaySeconds | default 30 }}
+          periodSeconds: {{ .Values.advanced.minio.health.liveness.periodSeconds | default 10 }}
+        {{- end }}
+        {{- if and .Values.advanced.enabled .Values.advanced.minio.health.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /minio/health/ready
+            port: api
+          initialDelaySeconds: {{ .Values.advanced.minio.health.readiness.initialDelaySeconds | default 30 }}
+          periodSeconds: {{ .Values.advanced.minio.health.readiness.periodSeconds | default 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-{{ .Chart.Name }}-data 

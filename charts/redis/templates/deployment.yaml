@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "cache" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/component: {{ .Values.component | default "cache" }}
+        app.kubernetes.io/part-of: {{ .Chart.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      {{- if and .Values.advanced.enabled .Values.advanced.redis.security }}
+      securityContext:
+        runAsUser: {{ .Values.advanced.redis.security.runAsUser }}
+        runAsGroup: {{ .Values.advanced.redis.security.runAsGroup }}
+        fsGroup: {{ .Values.advanced.redis.security.fsGroup }}
+        runAsNonRoot: {{ .Values.advanced.redis.security.runAsNonRoot }}
+      {{- end }}
+      containers:
+      - name: redis
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: redis
+          containerPort: {{ .Values.networking.port | default 6379 }}
+          protocol: TCP
+        command:
+        - redis-server
+        args:
+        - /etc/redis/redis.conf
+        {{- if .Values.auth.password }}
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        {{- end }}
+        env:
+        {{- if and .Values.advanced.enabled .Values.advanced.redis.env }}
+        {{- range $key, $value := .Values.advanced.redis.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.auth.password }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}-{{ .Chart.Name }}-credentials
+        {{- end }}
+        {{- if and .Values.advanced.enabled .Values.advanced.redis.health.liveness.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            {{- if .Values.auth.password }}
+            - -a
+            - $(REDIS_PASSWORD)
+            {{- end }}
+            - ping
+          initialDelaySeconds: {{ .Values.advanced.redis.health.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.advanced.redis.health.liveness.periodSeconds }}
+          timeoutSeconds: {{ .Values.advanced.redis.health.liveness.timeoutSeconds }}
+          failureThreshold: {{ .Values.advanced.redis.health.liveness.failureThreshold }}
+          successThreshold: {{ .Values.advanced.redis.health.liveness.successThreshold }}
+        {{- else }}
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            {{- if .Values.auth.password }}
+            - -a
+            - $(REDIS_PASSWORD)
+            {{- end }}
+            - ping
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        {{- end }}
+        {{- if and .Values.advanced.enabled .Values.advanced.redis.health.readiness.enabled }}
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            {{- if .Values.auth.password }}
+            - -a
+            - $(REDIS_PASSWORD)
+            {{- end }}
+            - ping
+          initialDelaySeconds: {{ .Values.advanced.redis.health.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.advanced.redis.health.readiness.periodSeconds }}
+          timeoutSeconds: {{ .Values.advanced.redis.health.readiness.timeoutSeconds }}
+          failureThreshold: {{ .Values.advanced.redis.health.readiness.failureThreshold }}
+          successThreshold: {{ .Values.advanced.redis.health.readiness.successThreshold }}
+        {{- else }}
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            {{- if .Values.auth.password }}
+            - -a
+            - $(REDIS_PASSWORD)
+            {{- end }}
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.cpu }}
+            memory: {{ .Values.resources.memory }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+        volumeMounts:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          mountPath: /data
+        {{- end }}
+        - name: config
+          mountPath: /etc/redis/redis.conf
+          subPath: redis.conf
+      volumes:
+      {{- if .Values.persistence.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-{{ .Chart.Name }}-data
+      {{- end }}
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+          items:
+          - key: redis.conf
+            path: redis.conf 

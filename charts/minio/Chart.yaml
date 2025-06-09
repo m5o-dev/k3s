@@ -1,0 +1,21 @@
+apiVersion: v2
+name: minio
+description: 🗂️ Servidor de armazenamento de objetos MinIO S3-compatível com console web simplificado para desenvolvimento e produção
+type: application
+version: 1.0.0
+appVersion: "RELEASE.2025-04-22T22-12-26Z"
+keywords:
+- kubernetes
+- minio
+- s3
+- object-storage
+- console
+- tutorial
+- storage
+home: https://github.com/m5o-tech/minio
+sources:
+- https://github.com/minio/minio
+- https://min.io
+maintainers:
+- name: M5O Team
+  email: contato@m5o.dev

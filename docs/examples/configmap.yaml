@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-config"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: { ? { .Chart.AppVersion | quote } }
+    app.kubernetes.io/component: { ? { .Values.component | default "application" | quote } }
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+data:
+  # Configurações simples chave-valor
+  app.env: "production"
+  app.debug: "false"
+
+  # Arquivo de configuração completo
+  app.conf: |
+    server {
+      port = 8080
+      host = "0.0.0.0"
+    }
+
+    database {
+      host = "{{ .Values.database.host | default \"localhost\" }}"
+      port = "{{ .Values.database.port | default 5432 }}"
+      name = "{{ .Values.database.name | default \"app\" }}"
+    }
+
+# PADRÕES:
+# - Nome: {{ .Release.Name }}-{{ .Chart.Name }}-config
+# - Labels: Todas as 6 labels kubernetes.io
+# - Use para configurações não-sensíveis
+# - Para secrets, use Secret em vez de ConfigMap 

@@ -1,0 +1,105 @@
+# 🗂️ MinIO - Configurações Helm Chart
+# Servidor de armazenamento de objetos S3-compatível com console web de gerenciamento
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Estas são as configurações que 80% dos usuários vão alterar
+
+# Domínios onde MinIO será acessível
+domains:
+  api: "" # Ex: s3.meudominio.com
+  console: "" # Ex: minio.meudominio.com
+
+# Credenciais do MinIO (obrigatórias)
+auth:
+  username: "admin" # Usuário root do MinIO
+  password: "" # Senha do usuário root (DEVE ser definida)
+
+# =============================================================================  
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Configuração de armazenamento
+storage:
+  size: "500Gi" # Tamanho do volume persistente
+  storageClass: "" # Classe de armazenamento a usar
+
+# Configuração TLS/HTTPS
+tls:
+  enabled: false # Habilita HTTPS automático
+
+# Configuração de recursos
+resources:
+  requests:
+    cpu: "250m" # CPU mínima
+    memory: "512Mi" # Memória mínima
+  limits:
+    cpu: "500m" # CPU máxima
+    memory: "1Gi" # Memória máxima
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (raramente alteradas)
+
+# Sobrescrever nomes dos recursos
+nameOverride: "" # Sobrescreve o nome do chart
+fullnameOverride: "" # Sobrescreve o nome completo dos recursos
+
+# Componente para identificação nos labels
+component: "storage" # Tipo de componente (storage, application, database, etc.)
+
+# Configurações extremamente avançadas (apenas se necessário)
+advanced:
+  enabled: false # Habilita seção de configurações avançadas
+
+  # ⚠️ Configurações abaixo só são aplicadas se advanced.enabled=true
+
+  # Anotações personalizadas nos recursos
+  annotations: {}
+
+  # Labels personalizadas adicionais
+  labels: {}
+
+  # Configurações específicas do MinIO
+  minio:
+    # Versão da imagem (normalmente não precisa alterar)
+    image:
+      repository: quay.io/minio/minio
+      tag: "RELEASE.2025-04-22T22-12-26Z" # Versão mais recente
+      pullPolicy: IfNotPresent
+
+    # Configurações de servidor
+    server:
+      # Variáveis de ambiente personalizadas
+      env: {}
+      # Exemplo:
+      # env:
+      #   MINIO_DOMAIN: "s3.meusite.com"
+      #   MINIO_SERVER_URL: "https://s3.meusite.com"
+      #   MINIO_BROWSER_REDIRECT_URL: "https://minio.meusite.com"
+
+      # Configurações de probe de saúde
+    health:
+      liveness:
+        enabled: true
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      readiness:
+        enabled: true
+        initialDelaySeconds: 30
+        periodSeconds: 10
+
+    # Configurações de persistência
+    persistence:
+      # Política de retenção do volume
+      retainOnDelete: true # Mantém dados se chart for removido
+
+    # Configurações de segurança
+    security:
+      # Contexto de segurança do pod
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000

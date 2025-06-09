@@ -1,0 +1,25 @@
+apiVersion: v2
+name: longhorn
+description: 💾 Sistema de armazenamento distribuído Longhorn com interface web simplificada para gerenciamento de volumes persistentes
+type: application
+version: 1.0.0
+appVersion: "v1.9.0"
+keywords:
+- kubernetes
+- storage
+- longhorn
+- persistent-volumes
+- tutorial
+- distributed-storage
+home: https://github.com/m5o-tech/longhorn
+sources:
+- https://github.com/longhorn/longhorn
+- https://charts.longhorn.io
+maintainers:
+- name: M5O Team
+  email: contato@m5o.dev
+
+dependencies:
+- name: longhorn
+  version: "1.9.0"
+  repository: "https://charts.longhorn.io"

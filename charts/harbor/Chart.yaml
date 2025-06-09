@@ -1,0 +1,22 @@
+apiVersion: v2
+name: harbor
+description: 🚢 Harbor Container Registry - Simplificado para iniciantes em Kubernetes
+type: application
+version: 0.1.0
+appVersion: "2.13.1"
+keywords:
+- harbor
+- registry
+- container
+- docker
+- kubernetes
+home: https://github.com/m5o-dev/charts
+sources:
+- https://github.com/goharbor/harbor
+maintainers:
+- name: M5O Dev Team
+  email: dev@m5o.dev
+dependencies:
+- name: harbor
+  repository: https://helm.goharbor.io
+  version: "1.17.1"

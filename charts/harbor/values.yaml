@@ -1,0 +1,71 @@
+# 🚢 Harbor - Container Registry para Kubernetes
+# Chart simplificado que usa o Harbor oficial como subchart
+
+# Componente para labels do IngressRoute
+component: "registry"
+
+# =============================================================================
+# 🚢 CONFIGURAÇÃO DO HARBOR OFICIAL (SUBCHART v1.17.1)  
+# =============================================================================
+# Configurações internas do subchart (sobrescritas via --set harbor.*)
+
+harbor:
+  # URL externa (passada via --set harbor.externalURL)
+  externalURL: "https://harbor.local"
+
+  # Senha admin (passada via --set harbor.harborAdminPassword)
+  harborAdminPassword: "Harbor12345"
+
+  # Configurações de exposição (ClusterIP + IngressRoute)
+  expose:
+    type: clusterIP
+    tls:
+      enabled: false
+    ingress:
+      enabled: false
+
+  # Configurações de banco externo (passadas via --set harbor.database.external.*)
+  database:
+    type: external
+    external:
+      host: "postgres-postgresql.postgres.svc.cluster.local"
+      port: 5432
+      username: "postgres"
+      password: "password"
+      coreDatabase: harbor_core
+      notaryServerDatabase: harbor_notary_server
+      notarySignerDatabase: harbor_notary_signer
+
+  # Configurações de Redis externo (passadas via --set harbor.redis.external.*)
+  redis:
+    type: external
+    external:
+      addr: "redis-redis.redis.svc.cluster.local:6379"
+      password: "password"
+
+  # Configurações de persistência
+  persistence:
+    enabled: true
+    resourcePolicy: keep
+    persistentVolumeClaim:
+      registry:
+        accessMode: ReadWriteOnce
+        size: "20Gi"
+        storageClass: "longhorn"
+      chartmuseum:
+        accessMode: ReadWriteOnce
+        size: "5Gi"
+        storageClass: "longhorn"
+      jobservice:
+        accessMode: ReadWriteOnce
+        size: "1Gi"
+        storageClass: "longhorn"
+      # Trivy scanner storage para cache de vulnerabilidades
+      trivy:
+        accessMode: ReadWriteOnce
+        size: "5Gi"
+        storageClass: "longhorn"
+
+  # Habilita ChartMuseum para armazenar Helm charts
+  chartmuseum:
+    enabled: true

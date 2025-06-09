@@ -1,0 +1,20 @@
+apiVersion: v2
+name: postgresql
+description: 🐘 Banco de dados PostgreSQL altamente configurável para desenvolvimento e produção
+type: application
+version: 1.0.0
+appVersion: "17.2"
+keywords:
+- kubernetes
+- postgresql
+- postgres
+- database
+- sql
+- relational
+home: https://github.com/m5o-tech/postgresql
+sources:
+- https://github.com/postgres/postgres
+- https://www.postgresql.org/
+maintainers:
+- name: M5O Team
+  email: contato@m5o.dev

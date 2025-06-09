@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "database" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if and .Values.advanced.enabled .Values.advanced.annotations }}
+  annotations:
+    {{- toYaml .Values.advanced.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.networking.serviceType | default "ClusterIP" }}
+  ports:
+  - name: postgresql
+    port: {{ .Values.networking.port | default 5432 }}
+    targetPort: postgresql
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and .Values.advanced.enabled .Values.advanced.network.service.loadBalancer.sourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.advanced.network.service.loadBalancer.sourceRanges }}
+    - {{ . }}
+    {{- end }}
+  {{- end }} 

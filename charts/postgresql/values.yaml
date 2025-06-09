@@ -1,0 +1,134 @@
+# 🐘 PostgreSQL - Configurações Helm Chart
+# Banco de dados PostgreSQL altamente configurável para desenvolvimento e produção
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Estas são as configurações que 80% dos usuários vão alterar
+
+# Credenciais do PostgreSQL (obrigatórias)
+auth:
+  username: "postgres" # Usuário administrador
+  password: "" # Senha do administrador (DEVE ser definida - mín. 8 caracteres)
+  database: "" # Nome do banco de dados inicial (opcional)
+
+# Configuração de armazenamento
+storage:
+  size: "10Gi" # Tamanho do volume persistente
+  storageClass: "" # Classe de armazenamento (deixe vazio para usar o padrão)
+
+# Configuração da imagem Docker
+image:
+  repository: "postgres" # Repositório da imagem
+  tag: "17.2" # Versão mais recente LTS
+  pullPolicy: IfNotPresent # Política de download (IfNotPresent, Always, Never)
+
+# Recursos computacionais
+resources:
+  cpu: "250m" # CPU: 250m = 0.25 core
+  memory: "512Mi" # Memória: 512Mi = 512 Megabytes
+  limits:
+    cpu: "1000m" # CPU máxima: 1000m = 1 core
+    memory: "2Gi" # Memória máxima: 2Gi = 2 Gigabytes
+
+# =============================================================================  
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Configurações de persistência
+persistence:
+  enabled: true # Habilita armazenamento persistente
+  retainOnDelete: false # Manter dados ao deletar o chart
+
+# Configurações de rede
+networking:
+  port: 5432 # Porta do PostgreSQL
+  serviceType: ClusterIP # Tipo do serviço (ClusterIP, NodePort, LoadBalancer)
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (raramente alteradas)
+
+# Sobrescrever nomes dos recursos
+nameOverride: "" # Sobrescreve o nome do chart
+fullnameOverride: "" # Sobrescreve o nome completo dos recursos
+
+# Componente para identificação nos labels
+component: "database" # Tipo de componente (database, application, cache, etc.)
+
+# Configurações extremamente avançadas (apenas se necessário)
+advanced:
+  enabled: false # Habilita seção de configurações avançadas
+
+  # ⚠️ Configurações abaixo só são aplicadas se advanced.enabled=true
+
+  # Anotações personalizadas nos recursos
+  annotations: {}
+
+  # Labels personalizadas adicionais
+  labels: {}
+
+  # ========================================================================
+  # 🐘 CONFIGURAÇÕES ESPECÍFICAS DO POSTGRESQL
+  # ========================================================================
+
+  postgresql:
+    # Configurações de performance
+    config:
+      max_connections: 100 # Número máximo de conexões
+      shared_buffers: "256MB" # Memória compartilhada para cache
+      effective_cache_size: "768MB" # Cache efetivo estimado
+      work_mem: "4MB" # Memória para operações de ordenação
+      maintenance_work_mem: "64MB" # Memória para manutenção
+      min_wal_size: "80MB" # Configurações de WAL
+      max_wal_size: "1GB"
+      checkpoint_completion_target: 0.7
+      wal_buffers: "16MB"
+      default_statistics_target: 100
+
+    # Configurações de segurança
+    security:
+      runAsUser: 999 # UID do usuário do container
+      runAsGroup: 999 # GID do grupo do container
+      fsGroup: 999 # Grupo do filesystem
+      runAsNonRoot: true # Não executar como root
+
+    # Health checks
+    health:
+      liveness:
+        enabled: true
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 6
+        successThreshold: 1
+      readiness:
+        enabled: true
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 6
+        successThreshold: 1
+
+    # Variáveis de ambiente personalizadas
+    env: {}
+      # POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+      # POSTGRES_INITDB_WALDIR: "/var/lib/postgresql/wal"
+
+    # Scripts de inicialização personalizados
+    initdb:
+      scripts: {}
+        # 01-create-extensions.sql: |
+        #   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        #   CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+        # 02-create-user.sql: |
+        #   CREATE USER app_user WITH PASSWORD 'app_password';
+        #   GRANT ALL PRIVILEGES ON DATABASE app_db TO app_user;
+
+  # Configurações de monitoramento
+  monitoring:
+    logging:
+      level: "info" # Nível de log
+      destination: "stderr" # Destino dos logs

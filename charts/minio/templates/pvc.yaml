@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "storage" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    {{- if and .Values.advanced.enabled .Values.advanced.minio.persistence.retainOnDelete }}
+    helm.sh/resource-policy: "keep"
+    {{- end }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: {{ .Values.storage.storageClass | default "longhorn" }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size | default "30Gi" }} 

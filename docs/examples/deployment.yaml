@@ -1,0 +1,91 @@
+# Exemplo de Deployment - Guidelines Simplificadas
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "application" | quote }}
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "{{ .Chart.Name }}"
+      app.kubernetes.io/instance: "{{ .Release.Name }}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "{{ .Chart.Name }}"
+        app.kubernetes.io/instance: "{{ .Release.Name }}"
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/component: {{ .Values.component | default "application" | quote }}
+        app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+        app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+    spec:
+      containers:
+      - name: "{{ .Chart.Name }}"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.port | default 80 }}
+          protocol: TCP
+        {{- with .Values.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+
+# PADRÕES OBRIGATÓRIOS:
+# - Nome: {{ .Release.Name }}-{{ .Chart.Name }}
+# - Labels: Todas as 6 labels kubernetes.io (metadata E template)
+# - Selector: app.kubernetes.io/name e app.kubernetes.io/instance
+# - Resources: Sempre configuráveis via .Values.resources
+# - Image: Sempre configurável via .Values.image
+# - Ports: Sempre configuráveis via .Values.port
+
+# =============================================================================
+# OBSERVAÇÕES IMPORTANTES
+# =============================================================================
+#
+# ✅ OBRIGATÓRIO: Labels kubernetes.io em metadata
+# ✅ OBRIGATÓRIO: Selector com name e instance
+# ✅ OBRIGATÓRIO: Nome {{ .Release.Name }}-{{ .Chart.Name }}
+# ✅ OBRIGATÓRIO: Resources configuráveis
+# ✅ OPCIONAL: Health checks apenas se a app suportar
+# ✅ OPCIONAL: Volumes apenas se necessário
+# ✅ OPCIONAL: Env vars via .Values.config 
+
+# =============================================================================
+# EXTENSÕES OPCIONAIS (adicionar se necessário)
+# =============================================================================
+
+# Para variáveis de ambiente:
+# env:
+# - name: APP_ENV
+#   value: production
+# {{- with .Values.env }}
+# {{- toYaml . | nindent 8 }}
+# {{- end }}
+
+# Para health checks:
+# livenessProbe:
+#   httpGet:
+#     path: /health
+#     port: http
+#   initialDelaySeconds: 30
+#   periodSeconds: 10
+
+# Para volumes:
+# volumeMounts:
+# - name: data
+#   mountPath: /data
+# volumes:
+# - name: data
+#   persistentVolumeClaim:
+#     claimName: "{{ .Release.Name }}-{{ .Chart.Name }}-data" 

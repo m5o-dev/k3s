@@ -1,0 +1,111 @@
+# 🌉 Bridge - Configurações Helm Chart
+# Ponte que permite configurar kubeconfig via token (sem certificados), utilizando bitnami/kubectl internamente para facilitar acesso ao cluster
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Estas são as configurações que 80% dos usuários vão alterar
+
+# Domínio onde a aplicação será acessível
+# Exemplo: bridge.meusite.com
+domain: "bridge.exemplo.com"
+
+# Configuração da imagem Docker
+image:
+  repository: bitnami/kubectl # Repositório da imagem
+  tag: "latest" # Versão/tag da imagem
+  pullPolicy: IfNotPresent # Política de download (IfNotPresent, Always, Never)
+
+# Recursos de CPU e Memória
+resources:
+  cpu: "100m" # CPU: 100m = 0.1 core, 1000m = 1 core
+  memory: "128Mi" # Memória: 128Mi = 128 Megabytes, 1Gi = 1024Mi
+
+# =============================================================================  
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Configuração TLS/HTTPS
+tls:
+  enabled: false # Habilita HTTPS automático
+
+# 🔐 CONFIGURAÇÃO SERVICE ACCOUNT
+# Configurações para criação automática de ServiceAccount e Token
+serviceAccount:
+  create: true # Criar ServiceAccount automaticamente
+  createToken: true # Criar Secret com token para K8s 1.24+ (necessário para autenticação)
+  automount: true # Montar token automaticamente no pod
+  annotations: {} # Anotações personalizadas para o ServiceAccount
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (raramente alteradas)
+
+# Sobrescrever nomes dos recursos
+nameOverride: "" # Sobrescreve o nome do chart
+fullnameOverride: "" # Sobrescreve o nome completo dos recursos
+
+# Componente para identificação nos labels
+component: "bridge" # Tipo de componente (application, database, cache, etc.)
+
+# Porta interna da aplicação (raramente alterada)
+port: 8001 # Porta que o kubectl proxy usa
+
+# Node Selector
+nodeSelector: {} # Selecionar nós específicos
+
+# Tolerations
+tolerations: [] # Tolerâncias para nós com taints
+
+# Affinity
+affinity: {} # Regras de afinidade/anti-afinidade
+
+# Configurações extremamente avançadas (apenas se necessário)
+advanced:
+  enabled: false # Habilita seção de configurações avançadas
+
+  # ⚠️ Configurações abaixo só são aplicadas se advanced.enabled=true
+
+  # Anotações personalizadas nos recursos
+  annotations: {}
+
+  # Labels personalizadas adicionais
+  labels: {}
+
+  # Configurações de segurança do pod
+  securityContext:
+    runAsNonRoot: false
+    runAsUser: 0
+    fsGroup: 0
+
+  # Configurações de deployment
+  deployment:
+    replicas: 1
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 1
+
+  # Configurações do service
+  service:
+    type: ClusterIP
+    annotations: {}
+
+  # Configurações de rede
+  ingress:
+    annotations: {}
+    middlewares: []
+
+  # Variáveis de ambiente personalizadas
+  env: []
+  # Exemplo:
+  # env:
+  #   - name: CUSTOM_VAR
+  #     value: "custom-value"
+
+  # Volumes adicionais
+  volumes: []
+  volumeMounts: []

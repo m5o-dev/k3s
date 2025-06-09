@@ -1,0 +1,153 @@
+# 💾 Longhorn - Configurações Helm Chart
+# Sistema de armazenamento distribuído para Kubernetes com interface web para gerenciamento de volumes
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Estas são as configurações que 80% dos usuários vão alterar
+
+# Domínio onde a interface web do Longhorn será acessível
+# Exemplo: longhorn.meusite.com
+domain: "longhorn.exemplo.com"
+
+# =============================================================================  
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Autenticação Básica para interface web
+auth:
+  enabled: true # Habilita autenticação básica (recomendado para produção)
+  username: "admin" # Usuário para login na interface
+  password: "" # Senha para login (DEVE ser definida)
+
+# Configuração TLS/HTTPS
+tls:
+  enabled: false # Habilita HTTPS automático
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (raramente alteradas)
+
+# Sobrescrever nomes dos recursos
+nameOverride: "" # Sobrescreve o nome do chart
+fullnameOverride: "" # Sobrescreve o nome completo dos recursos
+
+# Componente para identificação nos labels
+component: "storage" # Tipo de componente (storage, application, database, etc.)
+
+# Configurações extremamente avançadas (apenas se necessário)
+advanced:
+  enabled: false # Habilita seção de configurações avançadas
+
+  # ⚠️ Configurações abaixo só são aplicadas se advanced.enabled=true
+
+  # Anotações personalizadas nos recursos
+  annotations: {}
+
+  # Labels personalizadas adicionais
+  labels: {}
+
+  # ========================================================================
+  # 📦 CONFIGURAÇÕES DO SUBCHART LONGHORN OFICIAL (v1.9.0)
+  # ========================================================================
+  # Essas configurações são passadas diretamente para o chart oficial do Longhorn
+  # Consulte: https://longhorn.io/docs/1.9.0/references/helm-values/
+
+  longhorn:
+    # 💾 CONFIGURAÇÕES DE PERSISTÊNCIA E STORAGECLASS
+    # Configurações para criação automática da StorageClass e comportamento dos volumes
+    persistence:
+      defaultClass: true # Define Longhorn como StorageClass padrão do cluster
+      defaultClassReplicaCount: 2 # Número de réplicas padrão para novos volumes (mín: 2, máx: 20)
+      defaultDataLocality: "disabled" # Localidade dos dados ("disabled", "best-effort", "strict-local")
+      defaultFsType: "ext4" # Sistema de arquivos padrão para novos volumes ("ext4", "xfs")
+
+    # 🌐 CONFIGURAÇÕES DE REDE E SERVIÇOS
+    # Configurações dos serviços internos do Longhorn
+    service:
+      ui:
+        type: ClusterIP # Tipo do serviço da UI ("ClusterIP", "NodePort", "LoadBalancer")
+        nodePort: null # Porta específica para NodePort (deixe null para auto)
+      manager:
+        type: ClusterIP # Tipo do serviço do Manager ("ClusterIP", "NodePort")
+        nodePort: null # Porta específica para NodePort (deixe null para auto)
+
+    # ⚙️ CONFIGURAÇÕES PADRÃO DO SISTEMA LONGHORN
+    # Configurações avançadas que afetam o comportamento do sistema
+    defaultSettings:
+      # 🔄 Configurações de Backup e Recuperação
+      backupTarget: "" # URL do destino de backup (s3://bucket, nfs://server/path, etc.)
+      backupTargetCredentialSecret: "" # Nome do secret com credenciais do backup target
+      backupstorePollInterval: 300 # Intervalo de verificação do backupstore (segundos)
+
+      # 💿 Configurações de Disco e Armazenamento
+      createDefaultDiskLabeledNodes: false # Cria disco padrão apenas em nodes com label específica
+      defaultDataPath: "/var/lib/longhorn/" # Caminho padrão para armazenar dados nos nodes
+      defaultLonghornStaticStorageClass: "longhorn" # Nome da StorageClass estática padrão
+      defaultReplicaCount: 2 # Número padrão de réplicas para volumes criados via UI
+
+      # 🚀 Configurações de Performance e Recursos
+      guaranteedInstanceManagerCPU: 12 # % de CPU reservada para Instance Manager (1-40%)
+      storageOverProvisioningPercentage: 100 # % de over-provisioning permitido (100-1000%)
+      storageMinimalAvailablePercentage: 25 # % mínimo de espaço livre obrigatório (0-100%)
+
+      # 🔧 Configurações de Manutenção e Limpeza
+      orphanAutoDeletion: true # Remove automaticamente recursos órfãos
+      autoSalvage: true # Recupera automaticamente volumes com réplicas defeituosas
+      autoCleanupSystemGeneratedSnapshot: true # Remove snapshots temporários automaticamente
+
+      # 📊 Configurações de Monitoramento e Upgrade
+      upgradeChecker: true # Verifica novas versões do Longhorn periodicamente
+      allowCollectingLonghornUsageMetrics: true # Permite coleta de métricas anônimas de uso
+
+    # 🏷️ CONFIGURAÇÕES DE TOLERÂNCIAS E SELETORES
+    # Configurações para agendamento de pods em nodes específicos
+    longhornManager:
+      # Tolerâncias para o DaemonSet do Longhorn Manager
+      tolerations:
+      - key: "CriticalAddonsOnly" # Permite execução em nodes com taint crítico
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      nodeSelector: {} # Seletor de nodes para Longhorn Manager
+      priorityClass: "longhorn-critical" # Classe de prioridade para evitar evictions
+
+    longhornDriver:
+      # Tolerâncias para o Driver (CSI)
+      tolerations:
+      - key: "CriticalAddonsOnly" # Permite execução em nodes com taint crítico
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      nodeSelector: {} # Seletor de nodes para Driver
+      priorityClass: "longhorn-critical" # Classe de prioridade para evitar evictions
+
+    longhornUI:
+      # Tolerâncias para a Interface Web
+      tolerations:
+      - key: "CriticalAddonsOnly" # Permite execução em nodes com taint crítico
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      nodeSelector: {} # Seletor de nodes para UI
+      priorityClass: "longhorn-critical" # Classe de prioridade para evitar evictions
+      replicas: 2 # Número de réplicas da interface web (recomendado: 2+ para HA)
+
+    # 🖼️ CONFIGURAÇÕES DE IMAGENS
+    # Controle das versões das imagens dos componentes (normalmente não precisa alterar)
+    image:
+      pullPolicy: "IfNotPresent" # Política de download das imagens ("Always", "IfNotPresent", "Never")
+
+    # 🔐 CONFIGURAÇÕES DE SEGURANÇA
+    # Configurações relacionadas à segurança e acesso
+    enablePSP: false # Habilita Pod Security Policies (apenas K8s < 1.25)
+
+    # 📈 CONFIGURAÇÕES DE MÉTRICAS E MONITORAMENTO
+    # Integração com Prometheus/Grafana
+    metrics:
+      serviceMonitor:
+        enabled: false # Habilita ServiceMonitor para Prometheus Operator
+        interval: "" # Intervalo de coleta de métricas (ex: "30s")
+        additionalLabels: {} # Labels adicionais para o ServiceMonitor

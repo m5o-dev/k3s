@@ -1,0 +1,20 @@
+apiVersion: v2
+name: redis
+description: 🔴 Cache Redis in-memory altamente configurável para desenvolvimento e produção
+type: application
+version: 1.0.0
+appVersion: "7.4.1"
+keywords:
+- kubernetes
+- redis
+- cache
+- in-memory
+- database
+- nosql
+home: https://github.com/m5o-tech/redis
+sources:
+- https://github.com/redis/redis
+- https://redis.io/
+maintainers:
+- name: M5O Team
+  email: contato@m5o.dev

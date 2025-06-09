@@ -1,0 +1,170 @@
+# 🔴 Redis - Configurações Helm Chart
+# Cache Redis in-memory altamente configurável para desenvolvimento e produção
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Estas são as configurações que 80% dos usuários vão alterar
+
+# Credenciais do Redis (obrigatórias)
+auth:
+  password: "" # Senha do Redis (DEVE ser definida - mín. 6 caracteres)
+
+# Configuração de armazenamento
+storage:
+  size: "2Gi" # Tamanho do volume persistente
+  storageClass: "" # Classe de armazenamento (deixe vazio para usar o padrão)
+
+# Configuração da imagem Docker
+image:
+  repository: "redis" # Repositório da imagem
+  tag: "7.4.1-alpine" # Versão mais recente Alpine (menor tamanho)
+  pullPolicy: IfNotPresent # Política de download (IfNotPresent, Always, Never)
+
+# Recursos computacionais
+resources:
+  cpu: "250m" # CPU: 250m = 0.25 core
+  memory: "512Mi" # Memória: 512Mi = 512 Megabytes
+  limits:
+    cpu: "500m" # CPU máxima: 500m = 0.5 core
+    memory: "1Gi" # Memória máxima: 1Gi = 1 Gigabyte
+
+# =============================================================================  
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Configurações de persistência
+persistence:
+  enabled: true # Habilita armazenamento persistente
+  retainOnDelete: false # Manter dados ao deletar o chart
+
+# Configurações de rede
+networking:
+  port: 6379 # Porta do Redis
+  serviceType: ClusterIP # Tipo do serviço (ClusterIP, NodePort, LoadBalancer)
+
+# Configurações básicas do Redis
+redis:
+  # Configurações de memória
+  maxMemory: "768mb" # Memória máxima para o Redis
+  maxMemoryPolicy: "allkeys-lru" # Política de remoção de chaves (LRU)
+
+  # Configurações de persistência (AOF)
+  appendOnly: true # Habilita persistência AOF
+  appendFsync: "everysec" # Frequência de sincronização
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (raramente alteradas)
+
+# Sobrescrever nomes dos recursos
+nameOverride: "" # Sobrescreve o nome do chart
+fullnameOverride: "" # Sobrescreve o nome completo dos recursos
+
+# Componente para identificação nos labels
+component: "cache" # Tipo de componente (cache, database, application, etc.)
+
+# Configurações extremamente avançadas (apenas se necessário)
+advanced:
+  enabled: false # Habilita seção de configurações avançadas
+
+  # ⚠️ Configurações abaixo só são aplicadas se advanced.enabled=true
+
+  # Anotações personalizadas nos recursos
+  annotations: {}
+
+  # Labels personalizadas adicionais
+  labels: {}
+
+  # ========================================================================
+  # 🔴 CONFIGURAÇÕES ESPECÍFICAS DO REDIS
+  # ========================================================================
+
+  redis:
+    # Configurações avançadas de performance
+    config:
+      # Configurações de conexão
+      maxClients: 10000 # Número máximo de clientes conectados
+      timeout: 0 # Timeout de conexão (0 = sem timeout)
+
+      # Configurações de persistência RDB
+      save:
+      - "900 1" # Salva se pelo menos 1 chave mudou em 900 segundos
+      - "300 10" # Salva se pelo menos 10 chaves mudaram em 300 segundos  
+      - "60 10000" # Salva se pelo menos 10000 chaves mudaram em 60 segundos
+
+      # Configurações de rede
+      tcpKeepAlive: 300 # Keep alive TCP
+      tcpBacklog: 511 # Backlog de conexões TCP
+
+      # Configurações de logging
+      logLevel: "notice" # Nível de log (debug, verbose, notice, warning)
+
+      # Configurações de segurança
+      protectedMode: true # Modo protegido (requer senha para acesso externo)
+
+      # Notificações de eventos
+      notifyKeyspaceEvents: "KEA" # Eventos a serem notificados
+
+    # Configurações de segurança
+    security:
+      # UID do usuário do container
+      runAsUser: 999
+
+      # GID do grupo do container
+      runAsGroup: 999
+
+      # Grupo do filesystem
+      fsGroup: 999
+
+      # Não executar como root
+      runAsNonRoot: true
+
+    # Health checks
+    health:
+      # Configuração do liveness probe
+      liveness:
+        enabled: true
+        initialDelaySeconds: 20
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+        successThreshold: 1
+
+      # Configuração do readiness probe
+      readiness:
+        enabled: true
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+        successThreshold: 1
+
+    # Configurações de replica (para modo cluster)
+    replication:
+      enabled: false
+      replicas: 3
+
+    # Configurações de sentinel (para alta disponibilidade)
+    sentinel:
+      enabled: false
+      replicas: 3
+
+    # Variáveis de ambiente personalizadas
+    env: {}
+      # REDIS_DATABASES: "16"
+      # REDIS_DEFAULT_USER: "default"
+
+  # Configurações de monitoramento
+  monitoring:
+    logging:
+      level: "notice" # Nível de log
+      destination: "stdout" # Destino dos logs
+
+  # Configurações de backup
+  backup:
+    enabled: false # Habilita backups automáticos
+    schedule: "0 3 * * *" # Cronograma dos backups (cron format)
+    retention: 7 # Retenção dos backups (dias) 

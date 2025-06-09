@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "cache" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  redis.conf: |
+    # Configurações de memória
+    maxmemory {{ .Values.redis.maxMemory }}
+    maxmemory-policy {{ .Values.redis.maxMemoryPolicy }}
+    
+    # Configurações de persistência AOF
+    appendonly {{ if .Values.redis.appendOnly }}yes{{ else }}no{{ end }}
+    appendfsync {{ .Values.redis.appendFsync }}
+    no-appendfsync-on-rewrite yes
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    
+    {{- if .Values.advanced.enabled }}
+    # Configurações avançadas
+    maxclients {{ .Values.advanced.redis.config.maxClients }}
+    timeout {{ .Values.advanced.redis.config.timeout }}
+    tcp-keepalive {{ .Values.advanced.redis.config.tcpKeepAlive }}
+    tcp-backlog {{ .Values.advanced.redis.config.tcpBacklog }}
+    
+    # Configurações de logging
+    loglevel {{ .Values.advanced.redis.config.logLevel }}
+    
+    # Configurações de segurança
+    {{- if .Values.advanced.redis.config.protectedMode }}
+    protected-mode yes
+    {{- else }}
+    protected-mode no
+    {{- end }}
+    
+    # Notificações de eventos
+    notify-keyspace-events {{ .Values.advanced.redis.config.notifyKeyspaceEvents }}
+    
+    # Configurações de persistência RDB
+    {{- range .Values.advanced.redis.config.save }}
+    save {{ . }}
+    {{- end }}
+    {{- else }}
+    # Configurações básicas de persistência RDB
+    save 900 1
+    save 300 10
+    save 60 10000
+    
+    # Outras configurações básicas
+    notify-keyspace-events KEA
+    {{- end }}
+    
+    # Configurações de rede
+    bind 0.0.0.0
+    port {{ .Values.networking.port | default 6379 }} 

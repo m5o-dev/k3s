@@ -1,0 +1,28 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-console
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "storage" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  entryPoints:
+  - web
+  {{- if .Values.tls.enabled }}
+  - websecure
+  {{- end }}
+  routes:
+  - match: Host(`{{ .Values.domains.console }}`)
+    kind: Rule
+    services:
+    - name: {{ .Release.Name }}-{{ .Chart.Name }}
+      port: 9001
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Release.Name }}-{{ .Chart.Name }}-console-tls
+  {{- end }} 

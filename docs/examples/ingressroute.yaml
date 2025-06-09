@@ -1,0 +1,51 @@
+# Exemplo de IngressRoute (Traefik) - Guidelines Simplificadas
+
+# Só cria se domain for definido
+{{- if .Values.domain }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "application" | quote }}
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+spec:
+  entryPoints:
+  - web
+  {{- if .Values.tls.enabled }}
+  - websecure
+  {{- end }}
+  routes:
+  - match: "Host(`{{ .Values.domain }}`)"
+    kind: Rule
+    services:
+    - name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+      port: 80
+    {{- if .Values.auth.enabled }}
+    middlewares:
+    - name: "{{ .Release.Name }}-{{ .Chart.Name }}-auth"
+    {{- end }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    certResolver: default
+  {{- end }}
+{{- end }}
+
+# PADRÕES OBRIGATÓRIOS:
+# - Nome: {{ .Release.Name }}-{{ .Chart.Name }}
+# - Labels: Todas as 6 labels kubernetes.io
+# - Só cria se .Values.domain existir
+# - Match: Host(`{{ .Values.domain }}`)
+# - Service: {{ .Release.Name }}-{{ .Chart.Name }}
+# - TLS: Opcional via .Values.tls.enabled
+# - Auth: Opcional via .Values.auth.enabled 
+
+# EXTENSÕES OPCIONAIS:
+# - TLS: Adicionar websecure em entryPoints e seção tls
+# - Auth: Adicionar middlewares na route
+# - Condicional: Envolver com {{- if .Values.domain }} 

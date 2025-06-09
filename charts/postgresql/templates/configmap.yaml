@@ -1,0 +1,50 @@
+{{- if .Values.advanced.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: {{ .Values.component | default "database" }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  postgresql.conf: |
+    # Configurações de performance do PostgreSQL
+    max_connections = {{ .Values.advanced.postgresql.config.max_connections }}
+    shared_buffers = {{ .Values.advanced.postgresql.config.shared_buffers }}
+    effective_cache_size = {{ .Values.advanced.postgresql.config.effective_cache_size }}
+    work_mem = {{ .Values.advanced.postgresql.config.work_mem }}
+    maintenance_work_mem = {{ .Values.advanced.postgresql.config.maintenance_work_mem }}
+    min_wal_size = {{ .Values.advanced.postgresql.config.min_wal_size }}
+    max_wal_size = {{ .Values.advanced.postgresql.config.max_wal_size }}
+    checkpoint_completion_target = {{ .Values.advanced.postgresql.config.checkpoint_completion_target }}
+    wal_buffers = {{ .Values.advanced.postgresql.config.wal_buffers }}
+    default_statistics_target = {{ .Values.advanced.postgresql.config.default_statistics_target }}
+    
+    # Configurações de logging
+    {{- if .Values.advanced.monitoring.logging }}
+    log_destination = '{{ .Values.advanced.monitoring.logging.destination }}'
+    log_min_messages = {{ .Values.advanced.monitoring.logging.level }}
+    {{- end }}
+    
+    # Habilitar conexões externas
+    listen_addresses = '*'
+    
+    # Configurações de charset
+    lc_messages = 'en_US.utf8'
+    lc_monetary = 'en_US.utf8'
+    lc_numeric = 'en_US.utf8'
+    lc_time = 'en_US.utf8'
+    default_text_search_config = 'pg_catalog.english'
+
+  {{- if .Values.advanced.postgresql.initdb.scripts }}
+  {{- range $key, $value := .Values.advanced.postgresql.initdb.scripts }}
+  {{ $key }}: |
+{{ $value | indent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }} 
