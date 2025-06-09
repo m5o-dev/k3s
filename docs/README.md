@@ -43,9 +43,19 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Desenvolvedores configurando charts específicos
 
+#### **4. 📚 [CHART_DOCUMENTATION_GUIDE.md](./CHART_DOCUMENTATION_GUIDE.md)**
+**Guia prático de documentação** - baseado nos charts existentes:
+- ✅ Estrutura testada de READMEs
+- ✅ Diagramas Mermaid padronizados
+- ✅ Comentários educativos no values.yaml
+- ✅ Exemplos funcionais copy-paste
+- ✅ Checklist de qualidade
+
+**👥 Para quem:** Todos - documentação prática e funcional
+
 ### **🔧 Implementação e Operação**
 
-#### **4. 🩺 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
+#### **5. 🩺 [HEALTH_CHECKS.md](./HEALTH_CHECKS.md)**
 **Guia completo** para health checks:
 - ✅ Tipos de probes (startup, liveness, readiness)
 - ✅ Métodos de verificação (HTTP, TCP, exec)
@@ -55,7 +65,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** Desenvolvedores implementando aplicações confiáveis
 
-#### **5. 🚨 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
+#### **6. 🚨 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
 **Guia de resolução** de problemas comuns:
 - ✅ 5 problemas mais frequentes
 - ✅ Comandos de debug essenciais
@@ -67,7 +77,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 ### **🧪 Testes e Qualidade**
 
-#### **6. 🧪 [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)**
+#### **7. 🧪 [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)**
 **Estratégia completa** de testes e validação:
 - ✅ Filosofia e metodologia de testes
 - ✅ Múltiplas camadas de validação
@@ -77,7 +87,7 @@ Esta documentação contém **guidelines, padrões e exemplos** para criar chart
 
 **👥 Para quem:** DevOps e desenvolvedores - qualidade e confiabilidade
 
-#### **7. 🧪 [scripts/test-chart/](../scripts/test-chart/README.md)**
+#### **8. 🧪 [scripts/test-chart/](../scripts/test-chart/README.md)**
 **Scripts automatizados** de teste:
 - ✅ Script completo de validação
 - ✅ Testes em múltiplas camadas
