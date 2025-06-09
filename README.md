@@ -4,14 +4,14 @@
 
 ## 📦 **Charts Disponíveis**
 
-| Chart | Versão | Comando de Instalação |
-|-------|--------|---------------------|
-| 🔴 **Redis** | 7.4.1 | `helm install redis charts/redis --set auth.password=senha123` |
-| 🐘 **PostgreSQL** | - | `helm install postgres charts/postgresql --set domain=db.local` |
-| 📦 **MinIO** | - | `helm install minio charts/minio --set domain=s3.local` |
-| 💾 **Longhorn** | - | `helm install longhorn charts/longhorn` |
-| 🚢 **Harbor** | - | `helm install harbor charts/harbor --set domain=registry.local` |
-| 🌉 **Bridge** | - | `helm install bridge charts/bridge --set domain=bridge.local` |
+| Chart | Descrição |
+|-------|-----------|
+| 🔴 **Redis** | Cache in-memory para sessões e dados temporários |
+| 🐘 **PostgreSQL** | Banco de dados relacional para aplicações |
+| 📦 **MinIO** | Object storage compatível com S3 |
+| 💾 **Longhorn** | Storage distribuído para volumes persistentes |
+| 🚢 **Harbor** | Registry privado para containers |
+| 🌉 **Bridge** | Aplicação de ponte para acesso ao cluster |
 
 ## 🚀 **Instalação Rápida**
 
