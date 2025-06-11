@@ -19,24 +19,39 @@ kubectl get ingressroute -n kubernetes-dashboard
 ## 🎯 **Arquitetura**
 
 ```mermaid
-graph TD
-    A[👤 Usuário] -->|HTTPS| B[🌐 Cloudflare Tunnel]
-    B --> C[🔗 Traefik IngressRoute]
-    C --> D[📡 Kong Service]
-    D --> E[🚀 Dashboard Deployment]
-    E --> F[📊 Dashboard UI]
+---
+config:
+  look: classic
+  theme: neutral
+---
+flowchart TD
+    User("👤 Usuário") --> IngressRoute("🌐 IngressRoute<br/>(Traefik)")
+    IngressRoute --> KongService("🔗 Kong Service<br/>(Gateway)")
+    KongService --> DashboardDeployment("🚀 Dashboard Deployment<br/>(Kubernetes API)")
     
-    G[👤 ServiceAccount] -.->|Token| H[🔐 Secret]
-    H -.->|Auth| E
+    %% Configurações e Dependências
+    AdminSA("👤 ServiceAccount<br/>(Admin User)") -.-> Secret("🔐 Secret<br/>(Access Token)")
+    Secret -.-> DashboardDeployment
     
-    style A fill:#3B82F6
-    style B fill:#10B981
-    style C fill:#8B5CF6
-    style D fill:#F59E0B
-    style E fill:#EF4444
-    style F fill:#EC4899
-    style G fill:#6B7280
-    style H fill:#DC2626
+    %% Componentes internos opcionais
+    MetricsScraper("📊 Metrics Scraper<br/>(Optional)") -.-> DashboardDeployment
+    
+    %% Cores Tailwind CSS padronizadas com bordas arredondadas
+    classDef ingressStyle fill:#f59e0b,stroke:#d97706,color:#fff,rx:10,ry:10
+    classDef serviceStyle fill:#22c55e,stroke:#16a34a,color:#fff,rx:10,ry:10
+    classDef deploymentStyle fill:#14b8a6,stroke:#0d9488,color:#fff,rx:10,ry:10
+    classDef secretStyle fill:#f43f5e,stroke:#e11d48,color:#fff,rx:10,ry:10
+    classDef identityStyle fill:#6366f1,stroke:#4f46e5,color:#fff,rx:10,ry:10
+    classDef metricsStyle fill:#10b981,stroke:#059669,color:#fff,rx:10,ry:10
+    classDef defaultStyle fill:#78716c,stroke:#57534e,color:#fff,rx:10,ry:10
+    
+    class IngressRoute ingressStyle
+    class KongService serviceStyle
+    class DashboardDeployment deploymentStyle
+    class Secret secretStyle
+    class AdminSA identityStyle
+    class MetricsScraper metricsStyle
+    class User defaultStyle
 ```
 
 ## 📋 **Configurações Essenciais**
