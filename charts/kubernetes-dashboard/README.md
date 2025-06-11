@@ -107,11 +107,11 @@ helm install dashboard charts/kubernetes-dashboard \
 ### **1. Obter Token de Acesso**
 ```bash
 # Obter token do ServiceAccount administrativo
-# NOTA: Nome do secret segue padrão: {release-name}-admin-user-token
-kubectl get secret -n kubernetes-dashboard {release-name}-admin-user-token -o jsonpath='{.data.token}' | base64 -d
+# NOTA: Substitua {release-namespace} e {release-name} pelos valores da sua instalação
+kubectl -n {release-namespace} create token {release-name}-admin-user
 
-# Exemplo para release chamado "dashboard":
-kubectl get secret -n kubernetes-dashboard dashboard-admin-user-token -o jsonpath='{.data.token}' | base64 -d
+# Exemplo para release "dashboard" no namespace "kubernetes-dashboard":
+kubectl -n kubernetes-dashboard create token dashboard-admin-user
 ```
 
 ### **2. Acessar Interface**
@@ -176,18 +176,17 @@ kubectl describe ingressroute -n kubernetes-dashboard
 
 ### **Erro de autenticação**
 ```bash
-# 1. Verificar se o token existe (substitua {release-name} pelo nome da sua release)
-kubectl get secret -n kubernetes-dashboard {release-name}-admin-user-token
+# 1. Verificar se ServiceAccount existe (substitua {release-name} pelo nome da sua release)
+kubectl get serviceaccount -n kubernetes-dashboard {release-name}-admin-user
 
 # 2. Verificar permissões do ServiceAccount
 kubectl describe clusterrolebinding {release-name}-admin-user
 
-# 3. Verificar se ServiceAccount existe
-kubectl get serviceaccount -n kubernetes-dashboard {release-name}-admin-user
+# 3. Gerar novo token para teste
+kubectl -n kubernetes-dashboard create token {release-name}-admin-user
 
-# 4. Gerar novo token se necessário
-kubectl delete secret -n kubernetes-dashboard {release-name}-admin-user-token
-# O secret será recriado automaticamente
+# 4. Verificar se token foi gerado corretamente
+# O comando acima deve retornar um token JWT válido (longa string com pontos)
 ```
 
 ### **Problemas de rede**

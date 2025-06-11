@@ -53,4 +53,4 @@ spec:
       
       echo "🎉 Todos os testes básicos passaram!"
       echo "🌐 Dashboard deve estar acessível em: https://{{ .Values.domain }}"
-      echo "🔑 Obtenha o token com: kubectl get secret -n {{ .Release.Namespace }} {{ .Release.Name }}-admin-user-token -o jsonpath='{.data.token}' | base64 -d" 
+      echo "🔑 Obtenha o token com: kubectl -n {{ .Release.Namespace }} create token {{ .Release.Name }}-admin-user" 

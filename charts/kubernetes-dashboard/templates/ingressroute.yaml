@@ -21,7 +21,7 @@ spec:
     # CRÍTICO: Deve apontar para kong-proxy em HTTP (porta 80)
     # Kong gerencia routing interno para web/api/auth
     # Usa nomenclatura padrão do chart oficial
-    - name: "{{ .Release.Name }}-kubernetes-dashboard-kong-proxy"
+    - name: "{{ .Release.Name }}-kong-proxy"
       port: 80
   {{- if and .Values.tls .Values.tls.enabled }}
   tls:
