@@ -72,7 +72,7 @@ helm install longhorn charts/longhorn \
 
 | Parâmetro | Descrição | Valor Padrão |
 |-----------|-----------|--------------|
-| `domain` | URL onde acessar a interface web | `longhorn.exemplo.com` |
+| `domain` | URL onde acessar a interface web | `longhorn.meusite.com` |
 | `auth.enabled` | Habilitar autenticação básica | `true` |
 | `auth.username` | Usuário para login | `admin` |
 | `auth.password` | **Senha obrigatória** | `""` (deve ser definida) |

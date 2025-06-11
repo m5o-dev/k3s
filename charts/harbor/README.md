@@ -103,7 +103,7 @@ psql -h postgres-postgresql.postgres.svc.cluster.local -U postgres -c "CREATE DA
 
 ```bash
 helm install harbor charts/harbor \
-  --set harbor.externalURL=https://harbor.exemplo.com \
+  --set harbor.externalURL=https://harbor.meusite.com \
   --set harbor.database.external.password=postgres123 \
   --set harbor.redis.external.password=redis123
 ```
@@ -120,7 +120,7 @@ helm install harbor charts/harbor \
 
 ```bash
 # URL externa (protocolo + domínio)
---set harbor.externalURL=https://harbor.meudominio.com
+--set harbor.externalURL=https://harbor.meusite.com
 
 # Senha do PostgreSQL externo
 --set harbor.database.external.password=senha-postgres
@@ -165,7 +165,7 @@ helm install harbor charts/harbor \
 
 ```bash
 helm install harbor charts/harbor \
-  --set harbor.externalURL=http://harbor.local \
+  --set harbor.externalURL=https://harbor.meusite.com \
   --set harbor.database.external.password=dev123 \
   --set harbor.redis.external.password=dev123
 ```
@@ -174,7 +174,7 @@ helm install harbor charts/harbor \
 
 ```bash
 helm install harbor charts/harbor \
-  --set harbor.externalURL=https://harbor.exemplo.com \
+  --set harbor.externalURL=https://harbor.meusite.com \
   --set harbor.database.external.host=postgresql.database.svc.cluster.local \
   --set harbor.database.external.password=senha123 \
   --set harbor.redis.external.addr=redis.cache.svc.cluster.local:6379 \
@@ -200,7 +200,7 @@ Nosso chart adiciona:
 
 ```bash
 # Login via Docker
-docker login harbor.meudominio.com
+docker login harbor.meusite.com
 # Usuário: admin
 # Senha: Harbor12345 (ou sua senha personalizada)
 ```
@@ -209,13 +209,13 @@ docker login harbor.meudominio.com
 
 ```bash
 # Tag da imagem
-docker tag minha-app:latest harbor.meudominio.com/library/minha-app:latest
+docker tag minha-app:latest harbor.meusite.com/library/minha-app:latest
 
 # Push para Harbor
-docker push harbor.meudominio.com/library/minha-app:latest
+docker push harbor.meusite.com/library/minha-app:latest
 
 # Pull do Harbor
-docker pull harbor.meudominio.com/library/minha-app:latest
+docker pull harbor.meusite.com/library/minha-app:latest
 ```
 
 ## 🔍 **Troubleshooting**

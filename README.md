@@ -62,7 +62,7 @@ app.kubernetes.io/managed-by: "{{ .Release.Service }}"
 ### **Estrutura Values.yaml**
 ```yaml
 # 🚀 CONFIGURAÇÃO ESSENCIAL
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 image: {...}
 resources: {...}
 

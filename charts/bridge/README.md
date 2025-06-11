@@ -91,7 +91,7 @@ helm install bridge-prod charts/bridge \
 
 | Parâmetro | Descrição | Padrão |
 |-----------|-----------|--------|
-| `domain` | Domínio onde Bridge será acessível | `bridge.exemplo.com` |
+| `domain` | Domínio onde Bridge será acessível | `bridge.meusite.com` |
 | `image.repository` | Repositório da imagem Docker | `bitnami/kubectl` |
 | `image.tag` | Tag da imagem | `latest` |
 | `resources.cpu` | CPU (limits e requests) | `100m` |
@@ -211,7 +211,7 @@ flowchart TD
 ```bash
 # Instalar bridge para desenvolvimento local
 helm install bridge-dev charts/bridge \
-  --set domain=bridge.localhost \
+  --set domain=bridge.meusite.com \
   -n bridge-dev --create-namespace
 
 # Obter token para desenvolvedores

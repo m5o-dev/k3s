@@ -1,0 +1,99 @@
+# 🎛️ Kubernetes Dashboard - Configurações Helm Chart
+# Interface web para gerenciamento de clusters Kubernetes
+
+# =============================================================================
+# 🚀 CONFIGURAÇÃO ESSENCIAL
+# =============================================================================
+# Configurações básicas necessárias para funcionamento
+
+# Domínio onde o dashboard será acessível
+# Exemplo: dashboard.meusite.com, dash.empresa.com
+domain: "dashboard.meusite.com"
+
+# Habilitar o dashboard (sempre true para este chart)
+dashboard:
+  enabled: true
+
+# =============================================================================
+# ⚡ FUNCIONALIDADES OPCIONAIS
+# =============================================================================
+# Funcionalidades que podem ser habilitadas conforme necessário
+
+# Configuração TLS/HTTPS
+tls:
+  enabled: false # Cloudflare/proxy externo gerencia TLS
+
+# =============================================================================
+# 🔧 CONFIGURAÇÃO AVANÇADA (OPCIONAL)
+# =============================================================================
+# Configurações para usuários experientes (baseadas no chart oficial)
+
+# Configurações do chart oficial kubernetes-dashboard
+kubernetes-dashboard:
+  # IMPORTANTE: Kong Gateway é OBRIGATÓRIO no Dashboard 7.x
+  # Não pode ser desabilitado - é usado como proxy interno
+  kong:
+    enabled: true
+    # Configuração para uso com Ingress/IngressRoute
+    proxy:
+      type: ClusterIP
+      # CRÍTICO: Kong deve usar HTTP quando atrás de Ingress
+      http:
+        enabled: true
+        servicePort: 80
+      tls:
+        enabled: false
+        servicePort: 443
+    # Desabilitar componentes não necessários
+    ingressController:
+      enabled: false
+    manager:
+      enabled: false
+
+  # === CONFIGURAÇÕES DA APLICAÇÃO ===
+  app:
+    mode: 'dashboard'
+    scaling:
+      replicas: 1
+    security:
+      # Configurações de segurança para uso com proxy
+      allowInsecureLogin: false
+      enableInsecureLogin: false
+      enableSkipLogin: false
+    # Desabilitar ingress nativo - usaremos IngressRoute
+    ingress:
+      enabled: false
+
+  # === CONFIGURAÇÕES DOS MÓDULOS ===
+  api:
+    scaling:
+      replicas: 1
+    automountServiceAccountToken: true
+
+  auth:
+    scaling:
+      replicas: 1
+    automountServiceAccountToken: true
+
+  web:
+    scaling:
+      replicas: 1
+    automountServiceAccountToken: true
+
+  # === METRICS SCRAPER ===
+  metricsScraper:
+    enabled: true
+    scaling:
+      replicas: 1
+    automountServiceAccountToken: true
+
+  # === COMPONENTES EXTERNOS DESABILITADOS ===
+  # Estes componentes são gerenciados externamente
+  metrics-server:
+    enabled: false
+
+  cert-manager:
+    enabled: false
+
+  nginx:
+    enabled: false

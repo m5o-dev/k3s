@@ -346,7 +346,7 @@ if [ "$SKIP_LINT" = false ]; then
     
     # Configuração com todas as features
     if ! helm lint "$CHART_PATH" \
-        --set domain=test.exemplo.com \
+        --set domain=test.meusite.com \
         --set auth.enabled=true \
         --set tls.enabled=true \
         --set persistence.enabled=true \
@@ -369,7 +369,7 @@ print_header "🔧 ETAPA 2: TEMPLATE VALIDATION"
 print_step "Gerando templates..."
 
 # Preparar comando base
-HELM_TEMPLATE_CMD="helm template $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --set domain=test.exemplo.com"
+HELM_TEMPLATE_CMD="helm template $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --set domain=test.meusite.com"
 
 # Adicionar values file se fornecido
 if [ -n "$VALUES_FILE" ]; then
@@ -403,7 +403,7 @@ print_step "Testando templates com diferentes configurações..."
 if [ ${#SET_VALUES[@]} -eq 0 ]; then
     if ! helm template "$RELEASE_NAME" "$CHART_PATH" \
         --namespace "$NAMESPACE" \
-        --set domain=test.exemplo.com \
+        --set domain=test.meusite.com \
         --set auth.enabled=true \
         --set tls.enabled=true \
         --set persistence.enabled=true \
@@ -429,7 +429,7 @@ if [ "$SKIP_INSTALL" = false ]; then
     kubectl create namespace "$NAMESPACE"
     
     # Preparar comando de instalação
-    HELM_INSTALL_CMD="helm install $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --wait --timeout ${TIMEOUT}s --set domain=test.exemplo.com"
+    HELM_INSTALL_CMD="helm install $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --wait --timeout ${TIMEOUT}s --set domain=test.meusite.com"
     
     # Adicionar values file se fornecido
     if [ -n "$VALUES_FILE" ]; then
@@ -524,7 +524,7 @@ if [ "$SKIP_INSTALL" = false ]; then
     print_header "🔄 ETAPA 5: TESTE DE UPGRADE"
     
     # Preparar comando de upgrade
-    HELM_UPGRADE_CMD="helm upgrade $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --wait --timeout ${TIMEOUT}s --set domain=test.exemplo.com --set replicas=2"
+    HELM_UPGRADE_CMD="helm upgrade $RELEASE_NAME $CHART_PATH --namespace $NAMESPACE --wait --timeout ${TIMEOUT}s --set domain=test.meusite.com --set replicas=2"
     
     # Adicionar values file se fornecido
     if [ -n "$VALUES_FILE" ]; then

@@ -8,7 +8,7 @@
 
 # Domínio onde a interface web do Longhorn será acessível
 # Exemplo: longhorn.meusite.com
-domain: "longhorn.exemplo.com"
+domain: "longhorn.meusite.com"
 
 # =============================================================================  
 # ⚡ FUNCIONALIDADES OPCIONAIS

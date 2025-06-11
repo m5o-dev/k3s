@@ -86,8 +86,8 @@ helm install minio charts/minio \
 
 | Parâmetro | Descrição | Valor Padrão |
 |-----------|-----------|--------------|
-| `domains.api` | URL da API S3 (para SDKs, mc, etc.) | `s3.exemplo.com` |
-| `domains.console` | URL da interface web | `minio.exemplo.com` |
+| `domains.api` | URL da API S3 (para SDKs, mc, etc.) | `s3.meusite.com` |
+| `domains.console` | URL da interface web | `minio.meusite.com` |
 | `auth.username` | Usuário root do MinIO | `admin` |
 | `auth.password` | **Senha obrigatória** | `""` (deve ser definida) |
 | `storage.size` | Tamanho do volume persistente | `30Gi` |
@@ -202,23 +202,23 @@ curl https://dl.min.io/client/mc/release/linux-amd64/mc \
   --output mc && chmod +x mc
 
 # Configurar alias
-./mc alias set meusite https://s3.meusite.com admin minhasenhasegura123
+./mc alias set minio-exemplo https://s3.meusite.com admin minhasenhasegura123
 
 # Testar conectividade
-./mc admin info meusite
+./mc admin info minio-exemplo
 
 # Criar bucket de teste
-./mc mb meusite/teste
+./mc mb minio-exemplo/teste
 
 # Listar buckets
-./mc ls meusite
+./mc ls minio-exemplo
 
 # Upload de arquivo
 echo "Hello MinIO!" > teste.txt
-./mc cp teste.txt meusite/teste/
+./mc cp teste.txt minio-exemplo/teste/
 
 # Download de arquivo
-./mc cp meusite/teste/teste.txt downloaded.txt
+./mc cp minio-exemplo/teste/teste.txt downloaded.txt
 ```
 
 ## 🐛 **Troubleshooting**

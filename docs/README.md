@@ -159,7 +159,7 @@ labels:
 ### **📁 Values.yaml**
 ```yaml
 # 🚀 CONFIGURAÇÃO ESSENCIAL (topo)
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 image: {...}
 resources: {...}
 

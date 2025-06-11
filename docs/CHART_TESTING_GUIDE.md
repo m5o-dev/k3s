@@ -55,7 +55,7 @@ helm lint charts/[nome-do-chart]
 ```bash
 # Gerar YAML sem instalar
 helm template test charts/[nome-do-chart] \
-  --set domain=test.exemplo.com
+  --set domain=test.meusite.com
 
 # ✅ Deve gerar YAML válido sem erros
 ```
@@ -64,7 +64,7 @@ helm template test charts/[nome-do-chart] \
 ```bash
 # Validar com Kubernetes API
 helm template test charts/[nome-do-chart] \
-  --set domain=test.exemplo.com | \
+  --set domain=test.meusite.com | \
   kubectl apply --dry-run=client -f -
 
 # ✅ Deve validar sem erros
@@ -74,7 +74,7 @@ helm template test charts/[nome-do-chart] \
 ```bash
 # Testar instalação completa
 helm install test charts/[nome-do-chart] \
-  --set domain=test.exemplo.com \
+  --set domain=test.meusite.com \
   --create-namespace \
   --namespace test
 
@@ -193,7 +193,7 @@ spec:
 ```bash
 # Instalar chart
 helm install test charts/[nome] \
-  --set domain=test.exemplo.com \
+  --set domain=test.meusite.com \
   --create-namespace \
   --namespace test
 
@@ -256,7 +256,7 @@ echo "✅ Lint OK"
 # 2. Template Generation
 echo "🧪 2/5 - Template Generation..."
 helm template test charts/$CHART_NAME \
-  --set domain=test.exemplo.com > /tmp/test-$CHART_NAME.yaml
+  --set domain=test.meusite.com > /tmp/test-$CHART_NAME.yaml
 echo "✅ Template OK"
 
 # 3. Dry Run
@@ -268,7 +268,7 @@ echo "✅ Dry Run OK"
 echo "🚀 4/5 - Instalação Real..."
 kubectl create namespace $NAMESPACE
 helm install test charts/$CHART_NAME \
-  --set domain=test.exemplo.com \
+  --set domain=test.meusite.com \
   --namespace $NAMESPACE
 
 # Aguardar pods

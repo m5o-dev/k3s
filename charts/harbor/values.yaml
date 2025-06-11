@@ -11,7 +11,7 @@ component: "registry"
 
 harbor:
   # URL externa (passada via --set harbor.externalURL)
-  externalURL: "https://harbor.local"
+  externalURL: "https://harbor.meusite.com"
 
   # Senha admin (passada via --set harbor.harborAdminPassword)
   harborAdminPassword: "Harbor12345"

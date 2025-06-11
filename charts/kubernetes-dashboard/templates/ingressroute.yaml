@@ -1,0 +1,29 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: "dashboard"
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+  - match: Host(`{{ .Values.domain }}`)
+    kind: Rule
+    services:
+    # CRÍTICO: Deve apontar para kong-proxy em HTTP (porta 80)
+    # Kong gerencia routing interno para web/api/auth
+    # Usa nomenclatura padrão do chart oficial
+    - name: "{{ .Release.Name }}-kubernetes-dashboard-kong-proxy"
+      port: 80
+  {{- if and .Values.tls .Values.tls.enabled }}
+  tls:
+    certResolver: letsencrypt
+  {{- end }} 

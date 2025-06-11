@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}-test"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: "test"
+    app.kubernetes.io/part-of: "{{ .Chart.Name }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+  - name: dashboard-test
+    image: curlimages/curl:8.5.0
+    command:
+    - /bin/sh
+    - -c
+    - |
+      echo "🧪 Testando conectividade do Kubernetes Dashboard..."
+      
+      # Teste 1: Verificar se Kong proxy está respondendo
+      echo "📡 Testando Kong proxy..."
+      if curl -f -s -m 10 "http://{{ .Release.Name }}-kubernetes-dashboard-kong-proxy.{{ .Release.Namespace }}.svc.cluster.local" > /dev/null; then
+        echo "✅ Kong proxy está respondendo"
+      else
+        echo "❌ Kong proxy não está respondendo"
+        exit 1
+      fi
+      
+      # Teste 2: Verificar se API está acessível
+      echo "🔍 Testando API do Dashboard..."
+      if curl -f -s -m 10 "http://{{ .Release.Name }}-kubernetes-dashboard-kong-proxy.{{ .Release.Namespace }}.svc.cluster.local/api/v1/healthz" > /dev/null; then
+        echo "✅ API do Dashboard está acessível"
+      else
+        echo "⚠️  API do Dashboard pode não estar pronta (normal durante inicialização)"
+      fi
+      
+      # Teste 3: Verificar se ServiceAccount existe
+      echo "👤 Verificando ServiceAccount administrativo..."
+      if kubectl get serviceaccount "{{ .Release.Name }}-admin-user" -n {{ .Release.Namespace }} > /dev/null 2>&1; then
+        echo "✅ ServiceAccount administrativo existe"
+      else
+        echo "❌ ServiceAccount administrativo não encontrado"
+        exit 1
+      fi
+      
+      echo "🎉 Todos os testes básicos passaram!"
+      echo "🌐 Dashboard deve estar acessível em: https://{{ .Values.domain }}"
+      echo "🔑 Obtenha o token com: kubectl get secret -n {{ .Release.Namespace }} {{ .Release.Name }}-admin-user-token -o jsonpath='{.data.token}' | base64 -d" 

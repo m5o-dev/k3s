@@ -55,7 +55,7 @@
 
 # Domínio onde a aplicação será acessível
 # Exemplo: app.meusite.com, api.empresa.com
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 
 # Configuração da imagem Docker
 image:
@@ -145,7 +145,7 @@ advanced:
 # 🚀 CONFIGURAÇÃO ESSENCIAL
 # =============================================================================
 
-domain: "bridge.exemplo.com"
+domain: "bridge.meusite.com"
 
 image:
   repository: bitnami/kubectl
@@ -196,8 +196,8 @@ advanced:
 
 # Domínios para API e Console
 domains:
-  api: "s3.exemplo.com"      # API S3 (para SDKs)
-  console: "minio.exemplo.com" # Interface web
+  api: "s3.meusite.com"      # API S3 (para SDKs)
+  console: "minio.meusite.com" # Interface web
 
 # Configuração da imagem
 image:
@@ -325,7 +325,7 @@ advanced:
 # Domínio onde a aplicação será acessível
 # Exemplo: app.meusite.com, api.empresa.com
 # ⚠️ OBRIGATÓRIO: Sem domínio a aplicação não será acessível externamente
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 
 # Configuração da imagem Docker
 image:

@@ -154,7 +154,7 @@ selector:
 
 # Domínio onde a aplicação será acessível
 # Exemplo: app.meusite.com
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 
 # Configuração da imagem Docker
 image:
@@ -302,7 +302,7 @@ spec:
 
 **Values.yaml simples (padrão):**
 ```yaml
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 image:
   repository: nginx
   tag: "1.21"
@@ -310,7 +310,7 @@ image:
 
 **Usuário avançado pode adicionar:**
 ```yaml
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 image:
   repository: nginx
   tag: "1.21"
@@ -348,7 +348,7 @@ advanced:
 # Domínio onde a aplicação será acessível
 # Exemplo: app.meusite.com, api.empresa.com
 # ⚠️ OBRIGATÓRIO: Sem domínio a aplicação não será acessível
-domain: "app.exemplo.com"
+domain: "app.meusite.com"
 
 # Configuração da imagem Docker
 # repository: Nome da imagem (sem tag)

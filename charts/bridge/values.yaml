@@ -8,7 +8,7 @@
 
 # Domínio onde a aplicação será acessível
 # Exemplo: bridge.meusite.com
-domain: "bridge.exemplo.com"
+domain: "bridge.meusite.com"
 
 # Configuração da imagem Docker
 image:

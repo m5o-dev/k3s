@@ -202,16 +202,16 @@ helm get values meu-app
 
 # Se domain estiver vazio:
 helm upgrade meu-app charts/bridge \
-  --set domain=meuapp.exemplo.com
+  --set domain=meuapp.meusite.com
 ```
 
 **🔍 C) DNS não resolve**
 ```bash
 # Testar resolução DNS
-nslookup meuapp.exemplo.com
+nslookup meuapp.meusite.com
 
 # Para desenvolvimento local, adicionar ao /etc/hosts:
-# 127.0.0.1 meuapp.exemplo.com
+# 127.0.0.1 meuapp.meusite.com
 ```
 
 ---

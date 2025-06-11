@@ -8,8 +8,8 @@
 
 # Domínios onde MinIO será acessível
 domains:
-  api: "" # Ex: s3.meudominio.com
-  console: "" # Ex: minio.meudominio.com
+  api: "s3.meusite.com" # Ex: s3.meudominio.com
+  console: "minio.meusite.com" # Ex: minio.meudominio.com
 
 # Credenciais do MinIO (obrigatórias)
 auth:
