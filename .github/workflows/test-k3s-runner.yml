@@ -11,12 +11,12 @@ on:
       runner_name:
         description: 'Nome do runner'
         required: false
-        default: 'self-hosted'
+        default: 'actions-runners'
 
 jobs:
   test-runner:
     name: 🚀 Teste do Runner K3s
-    runs-on: [self-hosted, actions-runners]
+    runs-on: actions-runners
     
     steps:
       - name: 📋 Checkout do código
