@@ -1,6 +1,6 @@
 name: ⚡ Teste K3s Runner
 
-# Teste de funcionamento dos runners - v3 com runner ativo
+# Teste de funcionamento dos runners - v4 usando self-hosted
 on:
   push:
     branches: [main]
@@ -11,12 +11,12 @@ on:
       runner_name:
         description: 'Nome do runner'
         required: false
-        default: 'actions-runners'
+        default: 'self-hosted'
 
 jobs:
   test-runner:
     name: 🚀 Teste do Runner K3s
-    runs-on: actions-runners
+    runs-on: self-hosted
     
     steps:
       - name: 📋 Checkout do código
