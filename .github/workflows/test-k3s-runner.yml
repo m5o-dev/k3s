@@ -10,12 +10,12 @@ on:
       runner_name:
         description: 'Nome do runner'
         required: false
-        default: 'actions-runners'
+        default: 'self-hosted'
 
 jobs:
   test-runner:
     name: 🚀 Teste do Runner K3s
-    runs-on: ${{ github.event.inputs.runner_name || 'actions-runners' }}
+    runs-on: [self-hosted, actions-runners]
     
     steps:
       - name: 📋 Checkout do código
