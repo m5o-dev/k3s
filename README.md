@@ -1,6 +1,6 @@
 # 🚀 Charts Helm para k3s
 
-> **Helm Charts** customizados e otimizados para cluster k3s pessoal.
+> **Helm Charts** customizados e otimizados para cluster k3s pessoal. .
 
 ## 📦 **Charts Disponíveis**
 
