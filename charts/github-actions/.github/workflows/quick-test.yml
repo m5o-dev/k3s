@@ -1,0 +1,40 @@
+name: ⚡ Teste Rápido
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_name:
+        description: 'Nome do runner'
+        required: false
+        default: 'actions-runners'
+
+jobs:
+  quick-test:
+    name: 🚀 Teste Rápido do Runner
+    runs-on: ${{ github.event.inputs.runner_name || 'actions-runners' }}
+    
+    steps:
+      - name: 👋 Hello K3s!
+        run: |
+          echo "🎉 Olá do runner no k3s!"
+          echo "📅 Data: $(date)"
+          echo "🖥️  Hostname: $(hostname)"
+          echo "👤 Usuário: $(whoami)"
+      
+      - name: 🐳 Teste Docker
+        run: |
+          echo "🔨 Testando Docker:"
+          docker run --rm alpine:latest echo "Docker funcionando no k3s!"
+      
+      - name: ☸️  Teste Kubectl
+        run: |
+          echo "📋 Nodes do cluster:"
+          kubectl get nodes
+          echo ""
+          echo "🏃 Runners ativos:"
+          kubectl get pods -n actions-runners | grep Running || echo "Nenhum pod encontrado"
+      
+      - name: ✅ Sucesso!
+        run: |
+          echo "🎊 Teste concluído com sucesso!"
+          echo "✨ O runner está funcionando perfeitamente!" 

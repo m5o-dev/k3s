@@ -1,0 +1,23 @@
+# =================================================================
+# 🎮 GITHUB ACTIONS CONTROLLER - CONFIGURAÇÃO
+# Controlador central para gerenciar runners
+# =================================================================
+
+# 🔧 Configurações do controller
+gha-runner-scale-set-controller:
+  # Recursos do controller
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+
+  # Réplicas do controller
+  replicaCount: 1
+
+  # Configurações de segurança
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000

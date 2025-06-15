@@ -1,0 +1,31 @@
+# =================================================================
+# 🏃 GITHUB ACTIONS RUNNERS - CONFIGURAÇÃO
+# Configure apenas githubUrl e githubToken
+# =================================================================
+
+# 🔗 URL do GitHub (obrigatório)
+# Exemplos:
+#   - Repositório: https://github.com/m5o/meu-repo
+#   - Organização: https://github.com/m5o
+githubUrl: ""
+
+# 🔑 Token do GitHub (será criado como secret)
+# Permissões necessárias:
+#   - Para repositórios: "repo"
+#   - Para organizações: "admin:org"
+githubToken: ""
+
+# 🏷️ Nome dos runners (usado no runs-on dos workflows)
+runnerName: "k3s-runners"
+
+# 🔧 Configurações do scale set
+# NOTA: githubConfigUrl, githubConfigSecret e runnerScaleSetName 
+# devem ser configurados via --set durante a instalação
+gha-runner-scale-set:
+  # Escalabilidade
+  minRunners: 0
+  maxRunners: 10
+
+  # Modo container (Docker-in-Docker)
+  containerMode:
+    type: "dind"
