@@ -1,79 +1,23 @@
 name: ⚡ Teste K3s Runner
 
-# Teste de funcionamento dos runners - v4 usando self-hosted
+# Teste básico do runner - v5
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      runner_name:
-        description: 'Nome do runner'
-        required: false
-        default: 'self-hosted'
 
 jobs:
   test-runner:
-    name: 🚀 Teste do Runner K3s
+    name: 🚀 Teste Básico do Runner
     runs-on: self-hosted
     
     steps:
-      - name: 📋 Checkout do código
-        uses: actions/checkout@v4
-      
-      - name: 👋 Hello K3s!
+      - name: 👋 Hello World
         run: |
-          echo "🎉 Olá do runner no k3s!"
-          echo "📅 Data: $(date)"
+          echo "🎉 Hello from K3s runner!"
+          echo "📅 Date: $(date)"
           echo "🖥️  Hostname: $(hostname)"
-          echo "👤 Usuário: $(whoami)"
-          echo "🔧 Commit: ${{ github.sha }}"
-          echo "🌿 Branch: ${{ github.ref_name }}"
-          echo "🏃 Runner funcionando!"
-      
-      - name: 🐳 Teste Docker
-        run: |
-          echo "🔨 Testando Docker:"
-          docker --version
-          docker run --rm alpine:latest echo "Docker funcionando no k3s!"
-      
-      - name: ☸️  Teste Kubectl
-        run: |
-          echo "📋 Nodes do cluster:"
-          kubectl get nodes
-          echo ""
-          echo "📦 Namespaces:"
-          kubectl get namespaces | head -10
-          echo ""
-          echo "🏃 Runners ativos:"
-          kubectl get pods -n actions-runners | grep Running || echo "Nenhum pod encontrado"
-      
-      - name: 🧪 Teste de Build
-        run: |
-          echo "🏗️  Testando build de imagem:"
-          cat > Dockerfile << 'EOF'
-          FROM alpine:latest
-          RUN echo "Build automático no k3s!" > /test.txt
-          CMD cat /test.txt
-          EOF
+          echo "👤 User: $(whoami)"
           
-          docker build -t test-auto-build .
-          docker run --rm test-auto-build
-      
-      - name: 📊 Informações do Sistema
-        run: |
-          echo "💾 Memória disponível:"
-          free -h | head -2
-          echo ""
-          echo "💽 Espaço em disco:"
-          df -h / | tail -1
-          echo ""
-          echo "🔥 CPU:"
-          echo "Cores: $(nproc)"
-      
-      - name: ✅ Teste Concluído
-        run: |
-          echo "🎊 Teste concluído com sucesso!"
-          echo "✨ O runner está funcionando perfeitamente!"
-          echo "🚀 Pronto para CI/CD no k3s!" 
+      - name: ✅ Success
+        run: echo "🎊 Runner is working!" 
