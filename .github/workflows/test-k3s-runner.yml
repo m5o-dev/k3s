@@ -1,6 +1,6 @@
 name: ⚡ Teste K3s Runner
 
-# Teste de funcionamento dos runners - v2
+# Teste de funcionamento dos runners - v3 com runner ativo
 on:
   push:
     branches: [main]
@@ -30,6 +30,7 @@ jobs:
           echo "👤 Usuário: $(whoami)"
           echo "🔧 Commit: ${{ github.sha }}"
           echo "🌿 Branch: ${{ github.ref_name }}"
+          echo "🏃 Runner funcionando!"
       
       - name: 🐳 Teste Docker
         run: |
